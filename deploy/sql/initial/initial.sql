@@ -31,5 +31,6 @@ CREATE TABLE group_messages (
     type INT,
     State INT, 
     name STRING(1024) NOT NULL,
+    is_mute BOOL  NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now())
 );

@@ -23,17 +23,16 @@ var (
 	seedSessionID uint64
 )
 
-func NewGatewayRouter(handler *GatewayHandler) *napnap.Router {
+func NewGatewayRouter() *napnap.Router {
 	router := napnap.NewRouter()
-	router.Get("/ws", handler.wsEndpoint)
+	router.Get("/ws", wsEndpoint)
 	return router
 }
 
 type GatewayHandler struct {
 }
 
-func (h *GatewayHandler) wsEndpoint(c *napnap.Context) {
-
+func wsEndpoint(c *napnap.Context) {
 	member := &types.Member{}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -43,5 +42,5 @@ func (h *GatewayHandler) wsEndpoint(c *napnap.Context) {
 
 	sessionID := atomic.AddUint64(&seedSessionID, 1)
 	wsSession := gateway.NewWSSession(sessionID, member, conn)
-	wsSession.StarTasks()
+	wsSession.StartTasks()
 }

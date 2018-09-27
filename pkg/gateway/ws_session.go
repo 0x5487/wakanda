@@ -33,19 +33,21 @@ type WSSession struct {
 
 func NewWSSession(id uint64, member *types.Member, conn *websocket.Conn) *WSSession {
 	return &WSSession{
-		ID:     id,
-		member: member,
-		socket: conn,
+		ID:      id,
+		member:  member,
+		socket:  conn,
+		inChan:  make(chan *WSMessage, 1024),
+		outChan: make(chan *WSMessage, 1024),
 	}
 }
 
-func (c *WSSession) readLoop() {
+func (s *WSSession) readLoop() {
 	defer func() {
-		c.socket.Close()
+		s.socket.Close()
 	}()
 
-	c.socket.SetReadLimit(maxMessageSize)
-	c.socket.SetPongHandler(func(string) error { c.socket.SetReadDeadline(time.Now().Add(readWait)); return nil })
+	s.socket.SetReadLimit(maxMessageSize)
+	s.socket.SetPongHandler(func(string) error { s.socket.SetReadDeadline(time.Now().Add(readWait)); return nil })
 
 	var (
 		msgType int
@@ -55,11 +57,11 @@ func (c *WSSession) readLoop() {
 	)
 
 	for {
-		c.socket.SetReadDeadline(time.Now().Add(readWait))
-		msgType, msgData, err = c.socket.ReadMessage()
+		s.socket.SetReadDeadline(time.Now().Add(readWait))
+		msgType, msgData, err = s.socket.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Errorf("error: %v", err)
+				log.Errorf("gateway: websocket message error: %v", err)
 			}
 			break
 		}
@@ -70,15 +72,15 @@ func (c *WSSession) readLoop() {
 		}
 
 		select {
-		case c.inChan <- message:
+		case s.inChan <- message:
 		}
 	}
 }
 
-func (c *WSSession) writeLoop() {
+func (s *WSSession) writeLoop() {
 	pingTicker := time.NewTicker(pingPeriod)
 	defer func() {
-		c.socket.Close()
+		s.socket.Close()
 	}()
 
 	var (
@@ -87,14 +89,14 @@ func (c *WSSession) writeLoop() {
 	)
 	for {
 		select {
-		case message = <-c.outChan:
-			c.socket.SetWriteDeadline(time.Now().Add(writeWait))
-			if err = c.socket.WriteMessage(message.MsgType, message.MsgData); err != nil {
+		case message = <-s.outChan:
+			s.socket.SetWriteDeadline(time.Now().Add(writeWait))
+			if err = s.socket.WriteMessage(message.MsgType, message.MsgData); err != nil {
 				return
 			}
 		case <-pingTicker.C:
-			c.socket.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
+			s.socket.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := s.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
 		}
@@ -143,10 +145,15 @@ func (s *WSSession) StartTasks() {
 		case "JOIN":
 			commandResp, err = s.handleJoin(commandReq)
 			if err != nil {
-				log.Errorf("gateway: handle join command error: %v", err)
+				log.Errorf("gateway: handle JOIN command error: %v", err)
 				continue
 			}
-
+		case "LEAVE":
+			commandResp, err = s.handleLeave(commandReq)
+			if err != nil {
+				log.Errorf("gateway: handle LEAVE command error: %v", err)
+				continue
+			}
 		}
 
 		if commandResp != nil {

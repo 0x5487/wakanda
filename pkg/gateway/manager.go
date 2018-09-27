@@ -8,24 +8,40 @@ func NewManager() *Manager {
 	m := &Manager{
 		buckets: make([]*Bucket, 1024),
 	}
-	for id, bucket := range m.buckets {
-		bucket = NewBucket(id, 32)
+	// inital bucket setting
+	for idx, _ := range m.buckets {
+		m.buckets[idx] = NewBucket(idx, 32)
 	}
 	return m
 }
 
-func (m *Manager) Bucket(sessionID uint64) *Bucket {
+func (m *Manager) BucketBySessionID(sessionID uint64) *Bucket {
 	return m.buckets[sessionID%uint64(len(m.buckets))]
 }
 
 func (m *Manager) AddSession(session *WSSession) {
-	bucket := m.Bucket(session.ID)
+	bucket := m.BucketBySessionID(session.ID)
 	bucket.addSession(session)
+}
+
+func (m *Manager) DeleteSession(session *WSSession) {
+	bucket := m.BucketBySessionID(session.ID)
+	bucket.deleteSession(session)
+}
+
+func (m *Manager) JoinRoom(roomID string, session *WSSession) {
+	bucket := m.BucketBySessionID(session.ID)
+	bucket.joinRoom(roomID, session)
+}
+
+func (m *Manager) LeaveRoom(roomID string, session *WSSession) {
+	bucket := m.BucketBySessionID(session.ID)
+	bucket.leaveRoom(roomID, session)
 }
 
 func (m *Manager) PushAll(command *Command) {
 	job := Job{
-		OP:      PUSH_ALL,
+		OP:      OP_PUSH_ALL,
 		Command: command,
 	}
 	for _, bucket := range m.buckets {
@@ -35,7 +51,7 @@ func (m *Manager) PushAll(command *Command) {
 
 func (m *Manager) PushRoom(roomID string, command *Command) {
 	job := Job{
-		OP:      PUSH_ROOM,
+		OP:      OP_PUSH_ROOM,
 		Command: command,
 	}
 	for _, bucket := range m.buckets {

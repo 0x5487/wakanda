@@ -2,11 +2,13 @@ package gateway
 
 import (
 	"sync"
+
+	"github.com/jasonsoft/log"
 )
 
 type Bucket struct {
-	rwMutex  sync.RWMutex
 	id       int
+	rooms    sync.Map
 	sessions sync.Map
 	jobChan  chan Job
 }
@@ -16,23 +18,24 @@ func NewBucket(id, workerCount int) *Bucket {
 		id:      id,
 		jobChan: make(chan Job, 1000),
 	}
-
 	// create workers
 	for i := 0; i < workerCount; i++ {
 		go b.doJob()
 	}
-
 	return b
 }
 
 func (b *Bucket) addSession(session *WSSession) {
 	b.sessions.Store(session.ID, session)
+	log.Infof("gateway: session id %d was added to bucket id %d", session.ID, b.id)
 }
 
-func (b *Bucket) pushAll(message *WSMessage) {
-	b.rwMutex.RLock()
-	defer b.rwMutex.RUnlock()
+func (b *Bucket) deleteSession(session *WSSession) {
+	b.sessions.Delete(session.ID)
+	log.Infof("gateway: session id %d was deleted to bucket id %d", session.ID, b.id)
+}
 
+func (b *Bucket) pushAll(command *Command) {
 	var (
 		session *WSSession
 		ok      bool
@@ -41,19 +44,49 @@ func (b *Bucket) pushAll(message *WSMessage) {
 	b.sessions.Range(func(key, value interface{}) bool {
 		session, ok = value.(*WSSession)
 		if ok {
-			session.SendMessage(message)
+			msg, err := command.ToWSMessage()
+			if err != nil {
+				return true
+			}
+			session.SendMessage(msg)
 		}
 		return true
 	})
 }
 
 func (b *Bucket) room(roomID string) *Room {
+	room, found := b.rooms.Load(roomID)
+	if found {
+		room, ok := room.(*Room)
+		if ok {
+			return room
+		}
+	}
+	return nil
 }
 
-func (b *Bucket) pushRoom(roomID string, message *WSMessage) {
-	b.rwMutex.RLock()
-	defer b.rwMutex.RUnlock()
+func (b *Bucket) joinRoom(roomID string, session *WSSession) error {
+	room := b.room(roomID)
+	if room == nil {
+		room = NewRoom(roomID)
+		log.Infof("gateway: room id %s was created", room.id)
+	}
 
+	room.join(session)
+	b.rooms.Store(roomID, room)
+	return nil
+}
+
+func (b *Bucket) leaveRoom(roomID string, session *WSSession) {
+	room := b.room(roomID)
+	if room == nil {
+		return
+	}
+
+	room.leave(session)
+}
+
+func (b *Bucket) pushRoom(roomID string, command *Command) {
 	var (
 		session *WSSession
 		ok      bool
@@ -62,10 +95,23 @@ func (b *Bucket) pushRoom(roomID string, message *WSMessage) {
 	b.sessions.Range(func(key, value interface{}) bool {
 		session, ok = value.(*WSSession)
 		if ok {
-			session.SendMessage(message)
+			msg, err := command.ToWSMessage()
+			if err != nil {
+				return true // continue
+			}
+			session.SendMessage(msg)
 		}
 		return true
 	})
+}
+
+func (b *Bucket) count() int {
+	length := 0
+	b.sessions.Range(func(_, _ interface{}) bool {
+		length++
+		return true
+	})
+	return length
 }
 
 // doJob function which will be executed by workers.
@@ -75,10 +121,10 @@ func (b *Bucket) doJob() {
 		select {
 		case job = <-b.jobChan:
 			switch job.OP {
-			case PUSH_ALL:
-				b.pushAll(job.WSMessage)
-			case PUSH_ROOM:
-				b.pushRoom(job.RoomID, job.WSMessage)
+			case OP_PUSH_ALL:
+				b.pushAll(job.Command)
+			case OP_PUSH_ROOM:
+				b.pushRoom(job.RoomID, job.Command)
 			}
 		}
 	}

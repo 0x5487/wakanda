@@ -5,5 +5,5 @@ var (
 )
 
 func Initialize() {
-
+	_manager = NewManager()
 }

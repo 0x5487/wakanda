@@ -1,0 +1,7 @@
+*.exe
+/.vscode
+/bifrost
+/config.yml
+/debug
+/cmd/gateway/client
+/cmd/gateway/server
