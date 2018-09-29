@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"sync/atomic"
 
+	"github.com/jasonsoft/log"
+
 	"github.com/jasonsoft/wakanda/internal/types"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
 
@@ -33,6 +35,9 @@ type GatewayHandler struct {
 }
 
 func wsEndpoint(c *napnap.Context) {
+	defer func() {
+		log.Debug("socket end.")
+	}()
 	member := &types.Member{}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)

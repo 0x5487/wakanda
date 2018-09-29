@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"encoding/json"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -27,6 +28,7 @@ type WSSession struct {
 	ID      uint64
 	member  *types.Member
 	socket  *websocket.Conn
+	rooms   sync.Map
 	inChan  chan *WSMessage
 	outChan chan *WSMessage
 }
@@ -43,7 +45,7 @@ func NewWSSession(id uint64, member *types.Member, conn *websocket.Conn) *WSSess
 
 func (s *WSSession) readLoop() {
 	defer func() {
-		s.socket.Close()
+		s.Close()
 	}()
 
 	s.socket.SetReadLimit(maxMessageSize)
@@ -62,6 +64,7 @@ func (s *WSSession) readLoop() {
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Errorf("gateway: websocket message error: %v", err)
+
 			}
 			break
 		}
@@ -78,10 +81,11 @@ func (s *WSSession) readLoop() {
 }
 
 func (s *WSSession) writeLoop() {
-	pingTicker := time.NewTicker(pingPeriod)
 	defer func() {
-		s.socket.Close()
+		s.Close()
 	}()
+
+	pingTicker := time.NewTicker(pingPeriod)
 
 	var (
 		message *WSMessage
@@ -116,11 +120,17 @@ func (s *WSSession) SendMessage(msg *WSMessage) {
 	}
 }
 
+func (s *WSSession) Close() {
+	s.socket.Close()
+	_manager.DeleteSession(s)
+	log.Debugf("gateway: session was closed")
+}
+
 func (s *WSSession) StartTasks() {
+	_manager.AddSession(s)
+
 	go s.readLoop()
 	go s.writeLoop()
-
-	_manager.AddSession(s)
 
 	var (
 		message     *WSMessage

@@ -19,11 +19,13 @@ func NewRoom(roomID string) *Room {
 
 func (r *Room) join(session *WSSession) {
 	r.sessions.Store(session.ID, session)
+	session.rooms.Store(r.id, true)
 	log.Infof("gateway: session id %d was joined to room id %s", session.ID, r.id)
 }
 
 func (r *Room) leave(session *WSSession) {
 	r.sessions.Delete(session.ID)
+	session.rooms.Delete(r.id)
 	log.Infof("gateway: session id %d leaved the room id %s", session.ID, r.id)
 }
 

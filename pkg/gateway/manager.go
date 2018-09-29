@@ -27,6 +27,15 @@ func (m *Manager) AddSession(session *WSSession) {
 func (m *Manager) DeleteSession(session *WSSession) {
 	bucket := m.BucketBySessionID(session.ID)
 	bucket.deleteSession(session)
+
+	// leave room
+	session.rooms.Range(func(key, _ interface{}) bool {
+		roomID, ok := key.(string)
+		if ok {
+			bucket.leaveRoom(roomID, session)
+		}
+		return true
+	})
 }
 
 func (m *Manager) JoinRoom(roomID string, session *WSSession) {

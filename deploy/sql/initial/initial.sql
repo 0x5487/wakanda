@@ -10,7 +10,6 @@ CREATE TABLE groups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     type INT,
     name STRING(24) NOT NULL,
-    is_mute BOOL  NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now())
 );
@@ -19,6 +18,7 @@ DROP TABLE IF EXISTS group_members;
 CREATE TABLE group_members (
     group_id UUID,
     member_id UUID,
+    is_mute BOOL  NOT NULL,
     latest_ack_msgid INT,
     created_at TIMESTAMP NOT NULL DEFAULT (now())
 );
