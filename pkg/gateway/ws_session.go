@@ -47,7 +47,6 @@ func (s *WSSession) readLoop() {
 	defer func() {
 		s.Close()
 	}()
-
 	s.socket.SetReadLimit(maxMessageSize)
 	s.socket.SetPongHandler(func(string) error { s.socket.SetReadDeadline(time.Now().Add(readWait)); return nil })
 
@@ -62,9 +61,8 @@ func (s *WSSession) readLoop() {
 		s.socket.SetReadDeadline(time.Now().Add(readWait))
 		msgType, msgData, err = s.socket.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived, websocket.CloseAbnormalClosure) {
 				log.Errorf("gateway: websocket message error: %v", err)
-
 			}
 			break
 		}
@@ -84,7 +82,6 @@ func (s *WSSession) writeLoop() {
 	defer func() {
 		s.Close()
 	}()
-
 	pingTicker := time.NewTicker(pingPeriod)
 
 	var (
@@ -96,11 +93,13 @@ func (s *WSSession) writeLoop() {
 		case message = <-s.outChan:
 			s.socket.SetWriteDeadline(time.Now().Add(writeWait))
 			if err = s.socket.WriteMessage(message.MsgType, message.MsgData); err != nil {
+				log.Errorf("gateway: wrtieLoop error: %v", err)
 				return
 			}
 		case <-pingTicker.C:
 			s.socket.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := s.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
+				log.Errorf("gateway: wrtieLoop ping error: %v", err)
 				return
 			}
 		}
@@ -127,6 +126,10 @@ func (s *WSSession) Close() {
 }
 
 func (s *WSSession) StartTasks() {
+	defer func() {
+		s.Close()
+	}()
+
 	_manager.AddSession(s)
 
 	go s.readLoop()
@@ -164,6 +167,14 @@ func (s *WSSession) StartTasks() {
 				log.Errorf("gateway: handle LEAVE command error: %v", err)
 				continue
 			}
+		case "PUSHALL":
+			commandResp, err = s.handlePushAll(commandReq)
+			if err != nil {
+				log.Errorf("gateway: handle LEAVE command error: %v", err)
+				continue
+			}
+		default:
+			log.Warnf("gateway: unknown command: %s", commandReq.OP)
 		}
 
 		if commandResp != nil {
