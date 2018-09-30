@@ -8,6 +8,7 @@ const (
 type Job struct {
 	OP        int
 	RoomID    string
+	SessionID uint64
 	Command   *Command
 	WSMessage *WSMessage
 }

@@ -2,19 +2,34 @@ package core
 
 import "time"
 
+const (
+	GroupType   = 1
+	ChannelType = 2
+)
+
 type Group struct {
-	ID                 string
-	Name               string
-	Type               int // 1: group 2: channel
+	ID        string
+	Name      string
+	Type      int
+	IconUrl   string
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
+}
+
+type GroupDetail struct {
+	Group
 	IsMute             bool
 	UnseenMessageCount int
 	LatestAckMessageID int64
-	CreatedAt          *time.Time
-	UpdatedAt          *time.Time
+	LatestMessage      *Message
+}
+
+type FindGroupsDetailOptions struct {
+	ID       string
+	MemberID string
 }
 
 type GroupServicer interface {
-	ListGroups(memberID string) ([]*Group, error)
-	AckMessage()
-	AddGroup(groupID string) error
+	GroupsDetails(opts FindGroupsDetailOptions) ([]*GroupDetail, error)
+	AddGroup(groupID string, memberID string) error
 }

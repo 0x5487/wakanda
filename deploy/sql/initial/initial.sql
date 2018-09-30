@@ -16,7 +16,7 @@ CREATE TABLE groups (
 
 DROP TABLE IF EXISTS group_members;
 CREATE TABLE group_members (
-    group_id UUID,
+    group_id UUID PRIMARY KEY,
     member_id UUID,
     is_mute BOOL  NOT NULL,
     latest_ack_msgid INT,
@@ -31,6 +31,6 @@ CREATE TABLE group_messages (
     sender_id UUID,
     type INT,
     State INT, 
-    name STRING(1024) NOT NULL,
+    content STRING(1024) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now())
 );
