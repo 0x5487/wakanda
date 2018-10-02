@@ -1,35 +1,29 @@
-package core
+package messenger
 
 import "time"
 
+type GroupType int
+
 const (
-	GroupType   = 1
-	ChannelType = 2
+	GroupTypeGroup   = 1
+	GroupTypeChannel = 2
 )
 
 type Group struct {
 	ID        string
 	Name      string
-	Type      int
+	Type      GroupType
 	IconUrl   string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
 
-type GroupDetail struct {
-	Group
-	IsMute             bool
-	UnseenMessageCount int
-	LatestAckMessageID int64
-	LatestMessage      *Message
-}
-
-type FindGroupsDetailOptions struct {
-	ID       string
-	MemberID string
-}
-
 type GroupServicer interface {
-	GroupsDetails(opts FindGroupsDetailOptions) ([]*GroupDetail, error)
-	AddGroup(groupID string, memberID string) error
+	CreateGroup(group Group) error
+	LeaveGroup(groupID string) error
+	AddGroupMember(groupID string, memberID string) error
+	SetAdmin(groupID string, memberID string) error
+	RemoveAdmin(groupID string, memberID string) error
+	GroupAdmins(groupID string) ([]*Member, error)
+	DissolveGroup(groupID string) error // 解散群組
 }

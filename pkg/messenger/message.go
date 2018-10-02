@@ -1,32 +1,38 @@
-package core
+package messenger
 
 import "time"
 
+type MessageType int
+
 const (
 	// MessageTypeText represent text format of message
-	MessageTextType  = 1
-	MessageImageType = 2
+	MessageTypeText  = 1
+	MessageTypeImage = 2
+)
 
-	MessageNormalState  = 1
-	MessageDeletedState = 2
+type MessageState int
+
+const (
+	MessageStateNormal = 1
+	MessageStateDelete = 2
 )
 
 type Message struct {
-	ID        int64
+	ID        string
 	GroupID   string
 	SenderID  string
-	Type      int
-	State     int
+	Type      MessageType
+	State     MessageState
 	Content   string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
 
 type FindMessagesOptions struct {
-	MemberID      string
-	FromMessageID int64
-	Take          int
-	Skip          int
+	MemberID       string
+	ConversationID string
+	StartMessageID int64
+	Size           int
 }
 
 type Messenger interface {
