@@ -25,7 +25,7 @@ const (
 )
 
 type WSSession struct {
-	ID      uint64
+	ID      string
 	member  *types.Member
 	socket  *websocket.Conn
 	rooms   sync.Map
@@ -33,7 +33,7 @@ type WSSession struct {
 	outChan chan *WSMessage
 }
 
-func NewWSSession(id uint64, member *types.Member, conn *websocket.Conn) *WSSession {
+func NewWSSession(id string, member *types.Member, conn *websocket.Conn) *WSSession {
 	return &WSSession{
 		ID:      id,
 		member:  member,

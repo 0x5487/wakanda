@@ -1,5 +1,9 @@
 package gateway
 
+import (
+	"github.com/jasonsoft/wakanda/internal/hash"
+)
+
 type Manager struct {
 	buckets []*Bucket
 }
@@ -15,8 +19,9 @@ func NewManager() *Manager {
 	return m
 }
 
-func (m *Manager) BucketBySessionID(sessionID uint64) *Bucket {
-	return m.buckets[sessionID%uint64(len(m.buckets))]
+func (m *Manager) BucketBySessionID(sessionID string) *Bucket {
+	hashNumber := hash.FNV32a(sessionID)
+	return m.buckets[hashNumber%uint32(len(m.buckets))]
 }
 
 func (m *Manager) AddSession(session *WSSession) {

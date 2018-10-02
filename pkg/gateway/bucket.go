@@ -27,12 +27,12 @@ func NewBucket(id, workerCount int) *Bucket {
 
 func (b *Bucket) addSession(session *WSSession) {
 	b.sessions.Store(session.ID, session)
-	log.Infof("gateway: session id %d was added to bucket id %d", session.ID, b.id)
+	log.Infof("gateway: session id %s was added to bucket id %d", session.ID, b.id)
 }
 
 func (b *Bucket) deleteSession(session *WSSession) {
 	b.sessions.Delete(session.ID)
-	log.Infof("gateway: session id %d was deleted to bucket id %d", session.ID, b.id)
+	log.Infof("gateway: session id %s was deleted to bucket id %d", session.ID, b.id)
 }
 
 func (b *Bucket) pushAll(command *Command) {

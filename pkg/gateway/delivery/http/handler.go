@@ -2,9 +2,9 @@ package http
 
 import (
 	"net/http"
-	"sync/atomic"
 
 	"github.com/jasonsoft/log"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/jasonsoft/wakanda/internal/types"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
@@ -21,8 +21,6 @@ var (
 			return true
 		},
 	}
-
-	seedSessionID uint64
 )
 
 func NewGatewayRouter() *napnap.Router {
@@ -45,7 +43,7 @@ func wsEndpoint(c *napnap.Context) {
 		panic(err)
 	}
 
-	sessionID := atomic.AddUint64(&seedSessionID, 1)
+	sessionID := uuid.NewV4().String()
 	wsSession := gateway.NewWSSession(sessionID, member, conn)
 	wsSession.StartTasks()
 }

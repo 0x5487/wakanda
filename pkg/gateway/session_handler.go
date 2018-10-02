@@ -41,7 +41,7 @@ func (s *WSSession) handleLeave(commandReq *Command) (*Command, error) {
 }
 
 func (s *WSSession) handlePushAll(commandReq *Command) (*Command, error) {
-	log.Infof("gateway: push all command is handling, session id: %d", s.ID)
+	log.Infof("gateway: push all command is handling, session id: %s", s.ID)
 
 	msg := ""
 	err := json.Unmarshal(commandReq.Data, &msg)
