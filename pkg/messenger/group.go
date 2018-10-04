@@ -15,12 +15,20 @@ type Group struct {
 	IsSystem  bool
 	Type      GroupType
 	IconPath  string
+	CreatorID string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
 
+type FindGroupOptions struct {
+	ID       string
+	Type     GroupType
+	MemberID string
+}
+
 type GroupServicer interface {
-	CreateGroup(group *Group) error
+	Groups(opts []*FindGroupOptions) ([]*Group, error)
+	CreateGroup(group *Group, memberIDS []string) error
 	DissolveGroup(groupID string) error // 解散群組
 	JoinGroup(groupID string, memberID string) error
 	LeaveGroup(groupID string) error

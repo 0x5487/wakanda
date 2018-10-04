@@ -18,6 +18,7 @@ type Conversation struct {
 
 type FindConversionOptions struct {
 	ID       string
+	GroupID  string
 	MemberID string
 	SortBy   string
 	OrderBy  string

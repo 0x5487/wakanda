@@ -16,6 +16,7 @@ CREATE TABLE messenger_groups (
     type INT NOT NULL,
     icon_path STRING NOT NULL,
     name STRING(24) NOT NULL,
+    creator_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now())
 );
@@ -33,7 +34,9 @@ DROP TABLE IF EXISTS messenger_group_members;
 CREATE TABLE messenger_group_members (
     group_id UUID NOT NULL,
     member_id UUID NOT NULL,    
+    is_admin BOOL NOT NULL,   
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
+    updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (group_id, member_id)
 );
 
