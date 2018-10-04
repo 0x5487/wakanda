@@ -18,25 +18,26 @@ const (
 )
 
 type Message struct {
-	ID        string
-	GroupID   string
-	SenderID  string
-	Type      MessageType
-	State     MessageState
-	Content   string
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
+	ID             string
+	ConversationID string
+	SenderID       string
+	Type           MessageType
+	State          MessageState
+	Content        string
+	CreatedAt      *time.Time
+	UpdatedAt      *time.Time
 }
 
 type FindMessagesOptions struct {
+	ID             string
 	MemberID       string
-	ConversationID string
+	GroupID        string
 	StartMessageID int64
 	Size           int
 }
 
-type Messenger interface {
+type Messager interface {
 	Messages(opts FindMessagesOptions) ([]*Message, error)
 	CreateMessage(msg *Message) error
-	AckMessage(groupID string, ackMsgID int64) error
+	AckMessage(ConversationID string, ackMsgID int64, memberID string) error
 }
