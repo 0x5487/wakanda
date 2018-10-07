@@ -5,6 +5,7 @@ CREATE TABLE messenger_contacts (
     friend_id UUID NOT NULL,
     friend_name STRING NOT NULL,
     name STRING(24) NOT NULL,
+    state INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (member_id, friend_id)
@@ -14,8 +15,9 @@ DROP TABLE IF EXISTS messenger_groups;
 CREATE TABLE messenger_groups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     type INT NOT NULL,
-    icon_path STRING NOT NULL,
     name STRING(24) NOT NULL,
+    description STRING NOT NULL,
+    max_member_count INT NOT NULL,
     creator_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now())
@@ -46,7 +48,6 @@ CREATE TABLE messenger_conversations (
     group_id UUID NOT NULL,
     member_id UUID NOT NULL,
     is_mute BOOL NOT NULL,
-    is_system BOOL NOT NULL,
     last_ack_message_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now())
@@ -59,7 +60,7 @@ CREATE TABLE messenger_messages (
     group_id UUID NOT NULL,
     sender_id UUID NOT NULL,
     type INT NOT NULL,
-    State INT NOT NULL, 
+    state INT NOT NULL, 
     content STRING(1024) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now())

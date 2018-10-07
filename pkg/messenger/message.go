@@ -5,9 +5,9 @@ import "time"
 type MessageType int
 
 const (
-	// MessageTypeText represent text format of message
-	MessageTypeText  = 1
-	MessageTypeImage = 2
+	MessageTypeNotification = 1
+	MessageTypeText         = 2
+	MessageTypeImage        = 3
 )
 
 type MessageState int
@@ -18,14 +18,14 @@ const (
 )
 
 type Message struct {
-	ID             string
-	ConversationID string
-	SenderID       string
-	Type           MessageType
-	State          MessageState
-	Content        string
-	CreatedAt      *time.Time
-	UpdatedAt      *time.Time
+	ID        string
+	GroupID   string
+	SenderID  string
+	Type      MessageType
+	State     MessageState
+	Content   string
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
 }
 
 type FindMessagesOptions struct {
