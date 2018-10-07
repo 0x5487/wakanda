@@ -6,7 +6,8 @@ import (
 
 func NewRouter() *napnap.Router {
 	router := napnap.NewRouter()
-	router.Get("/v1/me/messages", meMessagesListEndpoint)
+	router.Post("/v1/me/contacts", contactsCreateEndpoint)
+	router.Get("/v1/me/messages", meMessageListEndpoint)
 	router.Get("/v1/me/groups", meGroupListEndpoint)
 	router.Get("/v1/groups/:id/join", groupJoinEndpoint)
 	return router
@@ -15,14 +16,10 @@ func NewRouter() *napnap.Router {
 type MessengerHandler struct {
 }
 
-func meMessagesListEndpoint(c *napnap.Context) {
 
-}
 
-func meGroupListEndpoint(c *napnap.Context) {
 
-}
 
-func groupJoinEndpoint(c *napnap.Context) {
 
-}
+
+

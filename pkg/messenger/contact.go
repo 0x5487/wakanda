@@ -26,7 +26,13 @@ type FindContactOptions struct {
 }
 
 type ContactServicer interface {
-	Contacts(opts FindContactOptions) ([]*FindContactOptions, error)
+	Contacts(opts FindContactOptions) ([]*Contact, error)
 	DeleteContact(memberID, friendID string) error
 	AddContact(memberID, friendID string) error
+}
+
+type ContactRepository interface {
+	Select(opts *FindContactOptions) ([]*Contact, error)
+	Insert(target *Contact) error
+	Block(target *Contact) error
 }

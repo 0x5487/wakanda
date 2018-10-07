@@ -15,6 +15,7 @@ type MessageState int
 const (
 	MessageStateNormal = 1
 	MessageStateDelete = 2
+	MessageStateDone   = 3 // 完成朋友邀請
 )
 
 type Message struct {

@@ -23,6 +23,7 @@ type Group struct {
 	Description    string
 	Type           GroupType
 	MaxMemberCount int
+	MemberCount    int
 	CreatorID      string
 	State          GroupState
 	CreatedAt      *time.Time
