@@ -1,13 +1,13 @@
 package messenger
 
-import "time"
+import (
+	"context"
+	"time"
 
-type ConversationType int
-
-const ()
+	"github.com/jmoiron/sqlx"
+)
 
 type Conversation struct {
-	ID               string
 	GroupID          string
 	MemberID         string
 	IsMute           bool
@@ -25,9 +25,14 @@ type FindConversionOptions struct {
 }
 
 type ConversationServicer interface {
-	Conversations(opts FindConversionOptions) ([]*Conversation, error)
-	CreateConversation(conversation *Conversation) error
-	UnreadMessageCount(conversationID string) (int, error)
-	MarkAllMessageAsRead(conversationID string) error
-	GetConversationMessageCount(conversationID string) (int, error)
+	Conversations(ctx context.Context, opts FindConversionOptions) ([]*Conversation, error)
+	CreateConversation(ctx context.Context, conversation *Conversation) error
+	UnreadMessageCount(ctx context.Context, conversationID string) (int, error)
+	MarkAllMessageAsRead(ctx context.Context, conversationID string) error
+	GetConversationMessageCount(ctx context.Context, conversationID string) (int, error)
+}
+
+type ConversationRepository interface {
+	DB() *sqlx.Tx
+	Insert(ctx context.Context, target *Conversation, tx *sqlx.Tx) error
 }

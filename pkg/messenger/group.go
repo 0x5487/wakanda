@@ -1,6 +1,11 @@
 package messenger
 
-import "time"
+import (
+	"context"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+)
 
 type GroupType int
 
@@ -45,14 +50,19 @@ type FindGroupMemberOptions struct {
 }
 
 type GroupServicer interface {
-	Groups(opts FindGroupOptions) ([]*Group, error)
-	CreateGroup(group *Group, memberIDS []string) error
-	DissolveGroup(groupID string) error // 解散群組
-	JoinGroup(groupID string, memberID string) error
-	LeaveGroup(groupID string) error
-	AddGroupMember(groupID string, memberID string) error
-	GroupMembers(opts FindGroupMemberOptions) ([]*Member, error)
-	SetAdmin(groupID string, memberID string) error
-	RemoveAdmin(groupID string, memberID string) error
-	GroupAdmins(groupID string) ([]*Member, error)
+	Groups(ctx context.Context, opts FindGroupOptions) ([]*Group, error)
+	CreateGroup(ctx context.Context, group *Group, memberIDS []string) error
+	DissolveGroup(ctx context.Context, groupID string) error // 解散群組
+	JoinGroup(ctx context.Context, groupID string, memberID string) error
+	LeaveGroup(ctx context.Context, groupID string) error
+	AddGroupMember(ctx context.Context, groupID string, memberID string) error
+	GroupMembers(ctx context.Context, opts FindGroupMemberOptions) ([]*Member, error)
+	SetAdmin(ctx context.Context, groupID string, memberID string) error
+	RemoveAdmin(ctx context.Context, groupID string, memberID string) error
+	GroupAdmins(ctx context.Context, groupID string) ([]*Member, error)
+}
+
+type GroupRepository interface {
+	DB() *sqlx.DB
+	CreateGroup(ctx context.Context, target *Group, memberIDS []string, tx *sqlx.Tx) error
 }

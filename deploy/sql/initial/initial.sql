@@ -44,13 +44,13 @@ CREATE TABLE messenger_group_members (
 
 DROP TABLE IF EXISTS messenger_conversations;
 CREATE TABLE messenger_conversations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     group_id UUID NOT NULL,
     member_id UUID NOT NULL,
     is_mute BOOL NOT NULL,
     last_ack_message_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
-    updated_at TIMESTAMP NOT NULL DEFAULT (now())
+    updated_at TIMESTAMP NOT NULL DEFAULT (now()),
+    PRIMARY KEY (group_id, member_id)
 );
 
 

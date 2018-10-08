@@ -1,6 +1,9 @@
 package messenger
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type MessageType int
 
@@ -38,7 +41,7 @@ type FindMessagesOptions struct {
 }
 
 type Messager interface {
-	Messages(opts FindMessagesOptions) ([]*Message, error)
-	CreateMessage(msg *Message) error
-	AckMessage(ConversationID string, ackMsgID int64, memberID string) error
+	Messages(ctx context.Context, opts FindMessagesOptions) ([]*Message, error)
+	CreateMessage(ctx context.Context, msg *Message) error
+	AckMessage(ctx context.Context, ConversationID string, ackMsgID int64, memberID string) error
 }

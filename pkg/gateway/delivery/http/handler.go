@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/jasonsoft/log"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 
 	"github.com/jasonsoft/wakanda/internal/types"
 	"github.com/jasonsoft/wakanda/pkg/gateway"

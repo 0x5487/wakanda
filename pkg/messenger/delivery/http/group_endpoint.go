@@ -2,10 +2,10 @@ package http
 
 import "github.com/jasonsoft/napnap"
 
-func meGroupListEndpoint(c *napnap.Context) {
+func (h *MessengerHandler) meGroupListEndpoint(c *napnap.Context) {
 
 }
 
-func groupJoinEndpoint(c *napnap.Context) {
+func (h *MessengerHandler) groupJoinEndpoint(c *napnap.Context) {
 
 }
