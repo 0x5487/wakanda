@@ -33,6 +33,6 @@ type ConversationServicer interface {
 }
 
 type ConversationRepository interface {
-	DB() *sqlx.Tx
+	DB() *sqlx.DB
 	Insert(ctx context.Context, target *Conversation, tx *sqlx.Tx) error
 }

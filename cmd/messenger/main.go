@@ -26,7 +26,7 @@ func main() {
 	}()
 
 	config := config.New("app.yml")
-	Initialize(config)
+	initialize(config)
 
 	nap := napWithMiddlewares()
 	httpEngine := napnap.NewHttpEngine(config.Messenger.Bind)

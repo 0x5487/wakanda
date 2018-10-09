@@ -1,4 +1,4 @@
-package middleware
+package identity
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func FromContext(ctx context.Context) (*types.Claim, bool) {
 type IdentityMiddleware struct {
 }
 
-func NewIdentityMiddleware() *IdentityMiddleware {
+func NewMiddleware() *IdentityMiddleware {
 	return &IdentityMiddleware{}
 }
 

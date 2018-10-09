@@ -51,7 +51,7 @@ type FindGroupMemberOptions struct {
 
 type GroupServicer interface {
 	Groups(ctx context.Context, opts FindGroupOptions) ([]*Group, error)
-	CreateGroup(ctx context.Context, group *Group, memberIDS []string) error
+	CreateGroup(ctx context.Context, group *Group, memberIDs []string) error
 	DissolveGroup(ctx context.Context, groupID string) error // 解散群組
 	JoinGroup(ctx context.Context, groupID string, memberID string) error
 	LeaveGroup(ctx context.Context, groupID string) error
@@ -64,5 +64,5 @@ type GroupServicer interface {
 
 type GroupRepository interface {
 	DB() *sqlx.DB
-	CreateGroup(ctx context.Context, target *Group, memberIDS []string, tx *sqlx.Tx) error
+	CreateGroup(ctx context.Context, target *Group, memberIDs []string, tx *sqlx.Tx) error
 }

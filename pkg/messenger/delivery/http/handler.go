@@ -12,16 +12,17 @@ type MessengerHandler struct {
 func NewRouter(h *MessengerHandler) *napnap.Router {
 	router := napnap.NewRouter()
 
-	// conversation
-	router.Get("/v1/me/conversation", h.conversationEndpoint)
-
 	// contact
+	router.Get("/v1/contacts", h.contactSearchEndpoint)
 	router.Get("/v1/me/contacts", h.contactsListEndpoint)
 	router.Post("/v1/me/contacts", h.contactsCreateEndpoint)
 
 	// group
 	router.Get("/v1/me/groups", h.meGroupListEndpoint)
 	router.Post("/v1/me/groups/:id/join", h.groupJoinEndpoint)
+
+	// conversation
+	router.Get("/v1/me/conversation", h.conversationEndpoint)
 
 	// message
 	router.Get("/v1/me/messages", h.meMessageListEndpoint)

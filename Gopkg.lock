@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:2209584c0f7c9b68c23374e659357ab546e1b70eec2761f03280f69a8fd23d77"
+  name = "github.com/cenk/backoff"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+  version = "v2.0.0"
+
+[[projects]]
   digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
   name = "github.com/gorilla/websocket"
   packages = ["."]
@@ -19,11 +27,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f38ef6adf6f348994508da1bf36ed51d685d043f7e512b3db5a47a4d22cffb9d"
+  digest = "1:193a9047afaefb18edec00a82c770f06a4fada5fbb6140514f8266f4f88ce50d"
   name = "github.com/jasonsoft/log"
   packages = [
     ".",
     "handlers/console",
+    "handlers/gelf",
   ]
   pruneopts = "UT"
   revision = "1daf6a8586a8d17cbf0363bbc83faa37328b7f6b"
@@ -66,7 +75,6 @@
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
 
-
 [[projects]]
   branch = "master"
   digest = "1:dedf20eb0d3e8d6aa8a4d3d2fae248222b688ed528201995e152cc497899123c"
@@ -78,17 +86,36 @@
   pruneopts = "UT"
   revision = "e3636079e1a4c1f337f212cc5cd2aca108f6c900"
 
+[[projects]]
+  branch = "master"
+  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  pruneopts = "UT"
+  revision = "146acd28ed5894421fb5aac80ca93bc1b1f46f87"
+
+[[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/cenk/backoff",
     "github.com/gorilla/websocket",
     "github.com/jasonsoft/cockroach-go/crdb",
     "github.com/jasonsoft/log",
     "github.com/jasonsoft/log/handlers/console",
+    "github.com/jasonsoft/log/handlers/gelf",
     "github.com/jasonsoft/napnap",
     "github.com/jmoiron/sqlx",
     "github.com/satori/go.uuid",
+    "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

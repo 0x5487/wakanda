@@ -15,6 +15,14 @@ type ContactService struct {
 	conversationRepo messenger.ConversationRepository
 }
 
+func NewContactService(contactRepo messenger.ContactRepository, groupRepo messenger.GroupRepository, conversationRepo messenger.ConversationRepository) *ContactService {
+	return &ContactService{
+		contactRepo:      contactRepo,
+		groupRepo:        groupRepo,
+		conversationRepo: conversationRepo,
+	}
+}
+
 func (svc *ContactService) AddContact(ctx context.Context, contact *messenger.Contact) error {
 	err := crdb.ExecuteTx(ctx, svc.contactRepo.DB(), nil, func(tx *sqlx.Tx) error {
 

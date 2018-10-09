@@ -3,7 +3,6 @@ package config
 import (
 	"flag"
 	"io/ioutil"
-	"log"
 	stdlog "log"
 	"os"
 	"path/filepath"
@@ -38,7 +37,6 @@ type Configuration struct {
 
 func New(fileName string) *Configuration {
 	flag.Parse()
-
 	c := Configuration{}
 
 	//read and parse config file
@@ -46,19 +44,21 @@ func New(fileName string) *Configuration {
 	if err != nil {
 		stdlog.Fatalf("config: file error: %s", err.Error())
 	}
-
 	configPath := filepath.Join(rootDirPath, fileName)
-	if _, err := os.Stat(configPath); !os.IsNotExist(err) {
-		// config exists
-		file, err := ioutil.ReadFile(configPath)
-		if err != nil {
-			log.Fatalf("config: file error: %s", err.Error())
-		}
+	_, err = os.Stat(configPath)
+	if err != nil {
+		stdlog.Fatalf("config: file error: %s", err.Error())
+	}
 
-		err = yaml.Unmarshal(file, &c)
-		if err != nil {
-			log.Fatal("config: config error:", err)
-		}
+	// config exists
+	file, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		stdlog.Fatalf("config: read file error: %s", err.Error())
+	}
+
+	err = yaml.Unmarshal(file, &c)
+	if err != nil {
+		stdlog.Fatal("config: yaml unmarshal error:", err)
 	}
 
 	return &c

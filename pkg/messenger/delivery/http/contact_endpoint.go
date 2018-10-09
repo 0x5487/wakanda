@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/jasonsoft/napnap"
-	"github.com/jasonsoft/wakanda/internal/middleware"
+	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jasonsoft/wakanda/internal/types"
 	"github.com/jasonsoft/wakanda/pkg/messenger"
 )
@@ -12,7 +12,7 @@ import (
 func (h *MessengerHandler) contactsListEndpoint(c *napnap.Context) {
 	ctx := c.StdContext()
 
-	claim, found := middleware.FromContext(ctx)
+	claim, found := identity.FromContext(ctx)
 	if found == false {
 		c.SetStatus(403)
 		return
@@ -41,7 +41,7 @@ func (h *MessengerHandler) contactsListEndpoint(c *napnap.Context) {
 func (h *MessengerHandler) contactsCreateEndpoint(c *napnap.Context) {
 	ctx := c.StdContext()
 
-	claim, found := middleware.FromContext(ctx)
+	claim, found := identity.FromContext(ctx)
 	if found == false {
 		c.SetStatus(403)
 		return
@@ -61,4 +61,8 @@ func (h *MessengerHandler) contactsCreateEndpoint(c *napnap.Context) {
 	}
 
 	c.SetStatus(201)
+}
+
+func (h *MessengerHandler) contactSearchEndpoint(c *napnap.Context) {
+
 }
