@@ -35,6 +35,14 @@
 
 [[constraint]]
   branch = "master"
+  name = "github.com/jmoiron/sqlx"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/jasonsoft/cockroach-go"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/jasonsoft/napnap"
 
 [[constraint]]

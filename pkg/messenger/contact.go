@@ -10,17 +10,17 @@ import (
 type ContactState int
 
 const (
-	ContactStateNormal = 1
-	ContactStateBlock  = 2
+	ContactStateNormal ContactState = 1
+	ContactStateBlock  ContactState = 2
 )
 
 type Contact struct {
-	MemberID   string       `json:"member_id"`
-	FriendID   string       `json:"friend_id"`
-	FriendName string       `json:"friend_name"`
-	State      ContactState `json:"state"`
-	CreatedAt  *time.Time   `json:"created_at"`
-	UpdatedAt  *time.Time   `json:"updated_at"`
+	MemberID  string       `json:"member_id"`
+	FriendID  string       `json:"friend_id"`
+	Name      string       `json:"name"`
+	State     ContactState `json:"state"`
+	CreatedAt *time.Time   `json:"created_at"`
+	UpdatedAt *time.Time   `json:"updated_at"`
 }
 
 type FindContactOptions struct {

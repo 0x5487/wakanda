@@ -3,9 +3,9 @@ package middleware
 import (
 	"fmt"
 
-	"gitlab.paradise-soft.com.tw/bbs/bbs/types"
-	"gitlab.paradise-soft.com.tw/rd/log"
-	"gitlab.paradise-soft.com.tw/rd/napnap"
+	"github.com/jasonsoft/log"
+	"github.com/jasonsoft/napnap"
+	"github.com/jasonsoft/wakanda/internal/types"
 )
 
 type ErrorHandingMiddleware struct {

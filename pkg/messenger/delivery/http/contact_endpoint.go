@@ -29,7 +29,7 @@ func (h *MessengerHandler) contactsListEndpoint(c *napnap.Context) {
 		AnchorUpdatedAt: &anchorUpdatedAt,
 	}
 
-	contacts, err := h.ContactService.Contacts(&listContactOpts)
+	contacts, err := h.ContactService.Contacts(ctx, &listContactOpts)
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +55,7 @@ func (h *MessengerHandler) contactsCreateEndpoint(c *napnap.Context) {
 
 	contact.MemberID = claim.UserID
 
-	err = h.ContactService.AddContact(contact)
+	err = h.ContactService.AddContact(ctx, contact)
 	if err != nil {
 		panic(err)
 	}

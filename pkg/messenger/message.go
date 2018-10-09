@@ -8,17 +8,17 @@ import (
 type MessageType int
 
 const (
-	MessageTypeNotification = 1
-	MessageTypeText         = 2
-	MessageTypeImage        = 3
+	MessageTypeNotification MessageType = 1
+	MessageTypeText         MessageType = 2
+	MessageTypeImage        MessageType = 3
 )
 
 type MessageState int
 
 const (
-	MessageStateNormal = 1
-	MessageStateDelete = 2
-	MessageStateDone   = 3 // 完成朋友邀請
+	MessageStateNormal MessageState = 1
+	MessageStateDelete MessageState = 2
+	MessageStateDone   MessageState = 3 // 完成朋友邀請
 )
 
 type Message struct {

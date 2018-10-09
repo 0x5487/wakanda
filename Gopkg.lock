@@ -11,6 +11,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:bcd7a481e3b34097473b845c55cc006b83934a0932d35ef1c6c4ffd2250b3ac3"
+  name = "github.com/jasonsoft/cockroach-go"
+  packages = ["crdb"]
+  pruneopts = "UT"
+  revision = "1f549862d97b2e68cb83d159252688f4be28d622"
+
+[[projects]]
+  branch = "master"
   digest = "1:f38ef6adf6f348994508da1bf36ed51d685d043f7e512b3db5a47a4d22cffb9d"
   name = "github.com/jasonsoft/log"
   packages = [
@@ -29,12 +37,35 @@
   revision = "cdceab4d8da20f9143a048a06b818f1a4a5129a0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:7654989089e5bd5b6734ec3be8b695e87d3f1f8d95620b343fd7d3995a5b60d7"
+  name = "github.com/jmoiron/sqlx"
+  packages = [
+    ".",
+    "reflectx",
+  ]
+  pruneopts = "UT"
+  revision = "0dae4fefe7c0e190f7b5a78dac28a1c82cc8d849"
+
+[[projects]]
+  digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
   name = "github.com/satori/go.uuid"
   packages = ["."]
   pruneopts = "UT"
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
+
 
 [[projects]]
   branch = "master"
@@ -52,9 +83,11 @@
   analyzer-version = 1
   input-imports = [
     "github.com/gorilla/websocket",
+    "github.com/jasonsoft/cockroach-go/crdb",
     "github.com/jasonsoft/log",
     "github.com/jasonsoft/log/handlers/console",
     "github.com/jasonsoft/napnap",
+    "github.com/jmoiron/sqlx",
     "github.com/satori/go.uuid",
   ]
   solver-name = "gps-cdcl"

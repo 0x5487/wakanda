@@ -10,16 +10,16 @@ import (
 type GroupType int
 
 const (
-	GroupTypeSystem       = 1
-	GroupTypeP2P          = 2
-	GroupTypePrivateGroup = 3
+	GroupTypeSystem       GroupType = 1
+	GroupTypeP2P          GroupType = 2
+	GroupTypePrivateGroup GroupType = 3
 )
 
 type GroupState int
 
 const (
-	GroupStateNormal    = 1
-	GroupStateDissolved = 2
+	GroupStateNormal    GroupState = 1
+	GroupStateDissolved GroupState = 2
 )
 
 type Group struct {

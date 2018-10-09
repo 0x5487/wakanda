@@ -17,7 +17,17 @@ type ContactService struct {
 
 func (svc *ContactService) AddContact(ctx context.Context, contact *messenger.Contact) error {
 	err := crdb.ExecuteTx(ctx, svc.contactRepo.DB(), nil, func(tx *sqlx.Tx) error {
+
+		// add contacts
+		originalMemberID := contact.MemberID
+		originalFriendID := contact.FriendID
 		err := svc.contactRepo.Insert(ctx, contact, tx)
+		if err != nil {
+			return err
+		}
+		contact.FriendID = originalMemberID
+		contact.MemberID = originalFriendID
+		err = svc.contactRepo.Insert(ctx, contact, tx)
 		if err != nil {
 			return err
 		}

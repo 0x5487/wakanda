@@ -33,7 +33,6 @@ func main() {
 	log.RegisterHandler(clog, log.AllLevels...)
 
 	nap := napnap.New()
-	nap.ForwardRemoteIpAddress = true
 	nap.Use(napnap.NewHealth())
 	nap.Use(middleware.NewErrorHandingMiddleware())
 	corsOpts := napnap.Options{
@@ -43,7 +42,8 @@ func main() {
 	}
 	nap.Use(napnap.NewCors(corsOpts))
 	nap.Use(middleware.NewIdentityMiddleware())
-	nap.Use(messengerHttp.NewRouter())
+
+	nap.Use(messengerHttp.NewRouter(_messengerHandler))
 
 	httpEngine := napnap.NewHttpEngine(":16999")
 	go func() {

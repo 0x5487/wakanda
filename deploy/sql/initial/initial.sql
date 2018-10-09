@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS messenger_contacts;
 CREATE TABLE messenger_contacts (
     member_id UUID NOT NULL,
     friend_id UUID NOT NULL,
-    friend_name STRING NOT NULL,
     name STRING(24) NOT NULL,
     state INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
