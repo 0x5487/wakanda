@@ -1,0 +1,12 @@
+env: dev
+database:
+  address:
+  username:
+  password: 
+  dbname: dev.wakanda
+logs:
+  - name: clog
+    type: console
+    min_level: debug
+messenger:
+  bind: ":16999"

@@ -9,10 +9,8 @@ import (
 	"time"
 
 	"github.com/jasonsoft/log"
-	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/napnap"
-	"github.com/jasonsoft/wakanda/internal/middleware"
-	messengerHttp "github.com/jasonsoft/wakanda/pkg/messenger/delivery/http"
+	"github.com/jasonsoft/wakanda/internal/config"
 )
 
 func main() {
@@ -27,27 +25,13 @@ func main() {
 		}
 	}()
 
-	log.SetAppID("messenger") // unique id for the app
+	config := config.New("app.yml")
+	Initialize(config)
 
-	clog := console.New()
-	log.RegisterHandler(clog, log.AllLevels...)
-
-	nap := napnap.New()
-	nap.Use(napnap.NewHealth())
-	nap.Use(middleware.NewErrorHandingMiddleware())
-	corsOpts := napnap.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders: []string{"*"},
-	}
-	nap.Use(napnap.NewCors(corsOpts))
-	nap.Use(middleware.NewIdentityMiddleware())
-
-	nap.Use(messengerHttp.NewRouter(_messengerHandler))
-
-	httpEngine := napnap.NewHttpEngine(":16999")
+	nap := napWithMiddlewares()
+	httpEngine := napnap.NewHttpEngine(config.Messenger.Bind)
 	go func() {
-		log.Info("messenger started")
+		log.Info("messenger service started")
 		err := nap.Run(httpEngine)
 		if err != nil {
 			log.Error(err)
