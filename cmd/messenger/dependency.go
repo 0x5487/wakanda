@@ -14,6 +14,8 @@ import (
 	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jasonsoft/wakanda/internal/middleware"
 	messengerHttp "github.com/jasonsoft/wakanda/pkg/messenger/delivery/http"
+	messengerCockroachdb "github.com/jasonsoft/wakanda/pkg/messenger/repository/cockroachdb"
+	messengerSvc "github.com/jasonsoft/wakanda/pkg/messenger/service"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -27,15 +29,15 @@ func initialize(config *config.Configuration) {
 	initLogger("messenger", config)
 	initDatabase(config)
 
-	// contactRepo := messengerCockroachdb.NewContactRepo(_dbx)
-	// groupRepo := messengerCockroachdb.NewGroupRepo(_dbx)
-	// conversationRepo := messengerCockroachdb.NewConversationRepo(_dbx)
+	contactRepo := messengerCockroachdb.NewContactRepo(_dbx)
+	groupRepo := messengerCockroachdb.NewGroupRepo(_dbx)
+	conversationRepo := messengerCockroachdb.NewConversationRepo(_dbx)
 
-	// contactSvc := messengerSvc.NewContactService(contactRepo, groupRepo, conversationRepo)
+	contactSvc := messengerSvc.NewContactService(contactRepo, groupRepo, conversationRepo)
 
-	// _messengerHandler = messengerHttp.MessengerHandler{
-	// 	ContactService: contactSvc,
-	// }
+	_messengerHandler = &messengerHttp.MessengerHandler{
+		ContactService: contactSvc,
+	}
 
 }
 

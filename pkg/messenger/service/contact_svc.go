@@ -23,6 +23,10 @@ func NewContactService(contactRepo messenger.ContactRepository, groupRepo messen
 	}
 }
 
+func (svc *ContactService) Contacts(ctx context.Context, opts *messenger.FindContactOptions) ([]*messenger.Contact, error) {
+	return svc.contactRepo.Select(ctx, opts)
+}
+
 func (svc *ContactService) AddContact(ctx context.Context, contact *messenger.Contact) error {
 	err := crdb.ExecuteTx(ctx, svc.contactRepo.DB(), nil, func(tx *sqlx.Tx) error {
 
@@ -75,4 +79,8 @@ func (svc *ContactService) AddContact(ctx context.Context, contact *messenger.Co
 	}
 
 	return nil
+}
+
+func (svc *ContactService) BlockContact(ctx context.Context, memberID, friendID string) error {
+	panic("not implemented")
 }

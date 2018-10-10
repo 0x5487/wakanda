@@ -50,7 +50,7 @@ type FindGroupMemberOptions struct {
 }
 
 type GroupServicer interface {
-	Groups(ctx context.Context, opts FindGroupOptions) ([]*Group, error)
+	Groups(ctx context.Context, opts *FindGroupOptions) ([]*Group, error)
 	CreateGroup(ctx context.Context, group *Group, memberIDs []string) error
 	DissolveGroup(ctx context.Context, groupID string) error // 解散群組
 	JoinGroup(ctx context.Context, groupID string, memberID string) error

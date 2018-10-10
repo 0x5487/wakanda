@@ -32,7 +32,7 @@ type FindContactOptions struct {
 
 type ContactServicer interface {
 	Contacts(ctx context.Context, opts *FindContactOptions) ([]*Contact, error)
-	DeleteContact(ctx context.Context, memberID, friendID string) error
+	BlockContact(ctx context.Context, memberID, friendID string) error
 	AddContact(ctx context.Context, contact *Contact) error
 }
 

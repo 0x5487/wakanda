@@ -9,7 +9,7 @@ import (
 	"github.com/jasonsoft/wakanda/pkg/messenger"
 )
 
-func (h *MessengerHandler) contactsListEndpoint(c *napnap.Context) {
+func (h *MessengerHandler) contactsMeListEndpoint(c *napnap.Context) {
 	ctx := c.StdContext()
 
 	claim, found := identity.FromContext(ctx)
@@ -18,18 +18,20 @@ func (h *MessengerHandler) contactsListEndpoint(c *napnap.Context) {
 		return
 	}
 
+	listContactOpts := &messenger.FindContactOptions{
+		MemberID: claim.UserID,
+	}
+
 	anchorUpdatedAtStr := c.Query("anchor_updated_at")
-	anchorUpdatedAt, err := time.Parse(time.RFC3339, anchorUpdatedAtStr)
-	if err != nil {
-		panic(types.AppError{ErrorCode: "invalid_input", Message: "anchor_updated_at field was invalid"})
+	if len(anchorUpdatedAtStr) > 0 {
+		anchorUpdatedAt, err := time.Parse(time.RFC3339, anchorUpdatedAtStr)
+		if err != nil {
+			panic(types.AppError{ErrorCode: "invalid_input", Message: "anchor_updated_at field was invalid"})
+		}
+		listContactOpts.AnchorUpdatedAt = &anchorUpdatedAt
 	}
 
-	listContactOpts := messenger.FindContactOptions{
-		MemberID:        claim.UserID,
-		AnchorUpdatedAt: &anchorUpdatedAt,
-	}
-
-	contacts, err := h.ContactService.Contacts(ctx, &listContactOpts)
+	contacts, err := h.ContactService.Contacts(ctx, listContactOpts)
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +40,7 @@ func (h *MessengerHandler) contactsListEndpoint(c *napnap.Context) {
 
 }
 
-func (h *MessengerHandler) contactsCreateEndpoint(c *napnap.Context) {
+func (h *MessengerHandler) contactsMeCreateEndpoint(c *napnap.Context) {
 	ctx := c.StdContext()
 
 	claim, found := identity.FromContext(ctx)

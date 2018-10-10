@@ -2,6 +2,6 @@ package http
 
 import "github.com/jasonsoft/napnap"
 
-func (h *MessengerHandler) conversationEndpoint(c *napnap.Context) {
+func (h *MessengerHandler) conversationMeListEndpoint(c *napnap.Context) {
 
 }
