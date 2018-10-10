@@ -15,9 +15,9 @@ const (
 )
 
 type Contact struct {
-	MemberID  string       `json:"member_id"`
-	FriendID  string       `json:"friend_id"`
-	Name      string       `json:"name"`
+	ID        string       `json:"id"`
+	MemberID1 string       `json:"member_id_1"`
+	MemberID2 string       `json:"member_id_2"`
 	State     ContactState `json:"state"`
 	CreatedAt *time.Time   `json:"created_at"`
 	UpdatedAt *time.Time   `json:"updated_at"`

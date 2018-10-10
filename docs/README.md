@@ -17,3 +17,9 @@
 
 #### Description
 1. `Job`: 內部任務
+
+
+
+#### 好友清單
+1. https://kikoroc.com/2016/05/27/mobile-app-friend-data-sync-strategy.html
+1. https://blog.csdn.net/cienit/article/details/45158149
