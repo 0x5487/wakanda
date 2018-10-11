@@ -3,6 +3,7 @@ package cockroachdb
 import (
 	"context"
 
+	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/wakanda/pkg/messenger"
 	"github.com/jmoiron/sqlx"
 )
@@ -21,7 +22,19 @@ func (repo *ContactRepo) DB() *sqlx.DB {
 	return repo.db
 }
 
-func (repo *ContactRepo) Insert(ctx context.Context, target *messenger.Contact, tx *sqlx.Tx) error {
+const insertContactSQL = `INSERT INTO messenger_contacts
+(group_id, member_id_1, member_id_2, state)
+VALUES(:group_id, :member_id_1, :member_id_2, :state);`
+
+func (repo *ContactRepo) InsertTx(ctx context.Context, target *messenger.Contact, tx *sqlx.Tx) error {
+	logger := log.FromContext(ctx)
+
+	_, err := tx.NamedExec(insertContactSQL, target)
+	if err != nil {
+		logger.Errorf("cockroachdb: insert contact table failed: %v", err)
+		return err
+	}
+
 	return nil
 }
 

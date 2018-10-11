@@ -16,13 +16,13 @@ const (
 )
 
 type Contact struct {
-	GroupID   string           `json:"group_id"`
-	MemberID1 string           `json:"member_id_1"`
-	MemberID2 string           `json:"member_id_2"`
+	GroupID   string           `json:"group_id" db:"group_id"`
+	MemberID1 string           `json:"member_id_1" db:"member_id_1"`
+	MemberID2 string           `json:"member_id_2" db:"member_id_2"`
 	Member    *identity.Member `json:"member"`
-	State     ContactState     `json:"state"`
-	CreatedAt *time.Time       `json:"created_at"`
-	UpdatedAt *time.Time       `json:"updated_at"`
+	State     ContactState     `json:"state" db:"state"`
+	CreatedAt *time.Time       `json:"created_at" db:"created_at"`
+	UpdatedAt *time.Time       `json:"updated_at" db:"updated_at"`
 }
 
 type FindContactOptions struct {
@@ -41,6 +41,6 @@ type ContactServicer interface {
 type ContactRepository interface {
 	DB() *sqlx.DB
 	Contacts(ctx context.Context, opts *FindContactOptions) ([]*Contact, error)
-	Insert(ctx context.Context, target *Contact, tx *sqlx.Tx) error
+	InsertTx(ctx context.Context, target *Contact, tx *sqlx.Tx) error
 	Block(ctx context.Context, target *Contact) error
 }

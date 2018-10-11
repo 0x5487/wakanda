@@ -24,16 +24,25 @@ const (
 )
 
 type Group struct {
-	ID             string
-	Name           string
-	Description    string
-	Type           GroupType
-	MaxMemberCount int
-	MemberCount    int
-	CreatorID      string
-	State          GroupState
-	CreatedAt      *time.Time
-	UpdatedAt      *time.Time
+	ID             string     `json:"id" db:"id"`
+	Name           string     `json:"name" db:"name"`
+	Description    string     `json:"description" db:"description"`
+	Type           GroupType  `json:"type" db:"type"`
+	MaxMemberCount int        `json:"max_member_count" db:"max_member_count"`
+	MemberCount    int        `json:"member_count" db:"member_count"`
+	CreatorID      string     `json:"creator_id" db:"creator_id"`
+	State          GroupState `json:"state" db:"state"`
+	CreatedAt      *time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt      *time.Time `json:"updated_at" db:"updated_at"`
+}
+
+type GroupMember struct {
+	ID        string     `json:"id" db:"id"`
+	GroupID   string     `json:"group_id" db:"group_id"`
+	MemberID  string     `json:"member_id" db:"member_id"`
+	IsAdmin   bool       `json:"is_admin" db:"is_admin"`
+	CreatedAt *time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type FindGroupOptions struct {
@@ -67,5 +76,10 @@ type GroupServicer interface {
 
 type GroupRepository interface {
 	DB() *sqlx.DB
-	CreateGroup(ctx context.Context, target *Group, memberIDs []string, tx *sqlx.Tx) error
+	InsertTx(ctx context.Context, target *Group, tx *sqlx.Tx) error
+}
+
+type GroupMemberRepository interface {
+	DB() *sqlx.DB
+	BatchInsertTx(ctx context.Context, members []*GroupMember, tx *sqlx.Tx) error
 }

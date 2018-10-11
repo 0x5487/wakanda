@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jasonsoft/wakanda/pkg/messenger"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -21,6 +22,6 @@ func (repo *GroupRepo) DB() *sqlx.DB {
 	return repo.db
 }
 
-func (repo *GroupRepo) CreateGroup(ctx context.Context, target *messenger.Group, memberIDs []string, tx *sqlx.Tx) error {
+func (repo *GroupRepo) InsertTx(ctx context.Context, target *messenger.Group, tx *sqlx.Tx) error {
 	return nil
 }

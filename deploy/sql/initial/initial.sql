@@ -14,11 +14,13 @@ CREATE TABLE messenger_contacts (
 
 DROP TABLE IF EXISTS messenger_groups;
 CREATE TABLE messenger_groups (
-    id UUID DEFAULT gen_random_uuid(),
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
     type INT NOT NULL,
     name STRING(24) NOT NULL,
     description STRING(256) NOT NULL,
     max_member_count INT NOT NULL,
+    member_count INT NOT NULL,
+    state INT NOT NULL,
     creator_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
@@ -29,7 +31,7 @@ CREATE TABLE messenger_groups (
 
 DROP TABLE IF EXISTS messenger_group_members;
 CREATE TABLE messenger_group_members (
-    id UUID DEFAULT gen_random_uuid(),
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
     group_id UUID NOT NULL,
     member_id UUID NOT NULL,    
     is_admin BOOL NOT NULL,   
@@ -41,7 +43,7 @@ CREATE TABLE messenger_group_members (
 
 DROP TABLE IF EXISTS messenger_conversations;
 CREATE TABLE messenger_conversations (
-    id UUID DEFAULT gen_random_uuid(),
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
     group_id UUID NOT NULL,
     member_id UUID NOT NULL,
     is_mute BOOL NOT NULL,
@@ -56,7 +58,7 @@ CREATE TABLE messenger_conversations (
 
 DROP TABLE IF EXISTS messenger_messages;
 CREATE TABLE messenger_messages (
-    id UUID DEFAULT gen_random_uuid(),
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
     group_id UUID NOT NULL,
     sender_id UUID NOT NULL,
     type INT NOT NULL,

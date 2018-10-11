@@ -55,7 +55,7 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 		}
 
 		contact.State = messenger.ContactStateNormal
-		err := svc.contactRepo.Insert(ctx, contact, tx)
+		err := svc.contactRepo.InsertTx(ctx, contact, tx)
 		if err != nil {
 			return err
 		}
@@ -69,12 +69,12 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 			State:          messenger.GroupStateNormal,
 		}
 
-		memberIDs := []string{memberID, friendID}
-		err = svc.groupRepo.CreateGroup(ctx, group, memberIDs, tx)
+		err = svc.groupRepo.InsertTx(ctx, group, tx)
 		if err != nil {
 			return err
 		}
 
+		memberIDs := []string{memberID, friendID}
 		for _, memberID := range memberIDs {
 			conversation := &messenger.Conversation{
 				GroupID:  group.ID,
