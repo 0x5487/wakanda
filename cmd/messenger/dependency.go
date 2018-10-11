@@ -25,7 +25,6 @@ var (
 )
 
 func initialize(config *config.Configuration) {
-
 	initLogger("messenger", config)
 	initDatabase(config)
 
@@ -78,8 +77,9 @@ func initDatabase(config *config.Configuration) {
 		err = _dbx.Ping()
 		if err != nil {
 			log.Errorf("main: cockroachdb ping error: %v", err)
+			return err
 		}
-		return err
+		return nil
 	}, bo); err != nil {
 		log.Panicf("cockroachdb connect timeout: %s", err.Error())
 	}

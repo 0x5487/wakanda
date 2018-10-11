@@ -16,7 +16,7 @@ const (
 )
 
 type Contact struct {
-	ID        string           `json:"id"`
+	GroupID   string           `json:"group_id"`
 	MemberID1 string           `json:"member_id_1"`
 	MemberID2 string           `json:"member_id_2"`
 	Member    *identity.Member `json:"member"`

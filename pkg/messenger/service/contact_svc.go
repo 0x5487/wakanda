@@ -43,7 +43,9 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 		hashNum1 := hash.FNV32a(memberID)
 		hashNum2 := hash.FNV32a(friendID)
 
-		contact := &messenger.Contact{}
+		contact := &messenger.Contact{
+			GroupID: uuid.NewV4().String(),
+		}
 		if hashNum1 < hashNum2 {
 			contact.MemberID1 = memberID
 			contact.MemberID2 = friendID
@@ -59,7 +61,7 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 		}
 
 		group := &messenger.Group{
-			ID:             uuid.NewV4().String(),
+			ID:             contact.GroupID,
 			Type:           messenger.GroupTypeP2P,
 			CreatorID:      memberID,
 			MaxMemberCount: 2,
