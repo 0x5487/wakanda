@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -40,13 +41,15 @@ type FindGroupOptions struct {
 	Type            GroupType
 	MemberID        string
 	AnchorUpdatedAt *time.Time
-	Size            int
+	Skip            int
+	PerPage         int
 }
 
 type FindGroupMemberOptions struct {
 	GroupID         string
 	AnchorUpdatedAt *time.Time
-	Size            int
+	Skip            int
+	PerPage         int
 }
 
 type GroupServicer interface {
@@ -56,10 +59,10 @@ type GroupServicer interface {
 	JoinGroup(ctx context.Context, groupID string, memberID string) error
 	LeaveGroup(ctx context.Context, groupID string) error
 	AddGroupMember(ctx context.Context, groupID string, memberID string) error
-	GroupMembers(ctx context.Context, opts FindGroupMemberOptions) ([]*Member, error)
+	GroupMembers(ctx context.Context, opts *FindGroupMemberOptions) ([]*identity.Member, error)
 	SetAdmin(ctx context.Context, groupID string, memberID string) error
 	RemoveAdmin(ctx context.Context, groupID string, memberID string) error
-	GroupAdmins(ctx context.Context, groupID string) ([]*Member, error)
+	GroupAdmins(ctx context.Context, groupID string) ([]*identity.Member, error)
 }
 
 type GroupRepository interface {

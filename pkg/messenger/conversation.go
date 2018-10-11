@@ -17,15 +17,18 @@ type Conversation struct {
 }
 
 type FindConversionOptions struct {
-	ID       string
-	GroupID  string
-	MemberID string
-	SortBy   string
-	OrderBy  string
+	ID              string
+	GroupID         string
+	MemberID        string
+	SortBy          string
+	OrderBy         string
+	AnchorUpdatedAt *time.Time
+	Skip            int
+	PerPage         int
 }
 
 type ConversationServicer interface {
-	Conversations(ctx context.Context, opts FindConversionOptions) ([]*Conversation, error)
+	Conversations(ctx context.Context, opts *FindConversionOptions) ([]*Conversation, error)
 	CreateConversation(ctx context.Context, conversation *Conversation) error
 	UnreadMessageCount(ctx context.Context, conversationID string) (int, error)
 	MarkAllMessageAsRead(ctx context.Context, conversationID string) error

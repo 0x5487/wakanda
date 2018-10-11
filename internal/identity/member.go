@@ -1,4 +1,4 @@
-package messenger
+package identity
 
 type Member struct {
 }

@@ -3,6 +3,8 @@ package http
 import (
 	"time"
 
+	"github.com/jasonsoft/wakanda/internal/pagination"
+
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jasonsoft/wakanda/internal/types"
@@ -11,6 +13,7 @@ import (
 
 func (h *MessengerHandler) contactsMeListEndpoint(c *napnap.Context) {
 	ctx := c.StdContext()
+	pagination := pagination.FromContext(c)
 
 	claim, found := identity.FromContext(ctx)
 	if found == false {
@@ -20,6 +23,8 @@ func (h *MessengerHandler) contactsMeListEndpoint(c *napnap.Context) {
 
 	listContactOpts := &messenger.FindContactOptions{
 		MemberID: claim.UserID,
+		Skip:     pagination.Skip(),
+		PerPage:  pagination.PerPage,
 	}
 
 	anchorUpdatedAtStr := c.Query("anchor_updated_at")
@@ -31,13 +36,16 @@ func (h *MessengerHandler) contactsMeListEndpoint(c *napnap.Context) {
 		listContactOpts.AnchorUpdatedAt = &anchorUpdatedAt
 	}
 
-	contacts, err := h.ContactService.Contacts(ctx, listContactOpts)
+	contacts, err := h.contactService.Contacts(ctx, listContactOpts)
 	if err != nil {
 		panic(err)
 	}
 
 	c.JSON(200, contacts)
+}
 
+type ContactCreatePayload struct {
+	FriendID string `json:"friend_id"`
 }
 
 func (h *MessengerHandler) contactsMeCreateEndpoint(c *napnap.Context) {
@@ -49,15 +57,13 @@ func (h *MessengerHandler) contactsMeCreateEndpoint(c *napnap.Context) {
 		return
 	}
 
-	contact := &messenger.Contact{}
-	err := c.BindJSON(contact)
+	payload := ContactCreatePayload{}
+	err := c.BindJSON(payload)
 	if err != nil {
 		panic(err)
 	}
 
-	contact.MemberID = claim.UserID
-
-	err = h.ContactService.AddContact(ctx, contact)
+	err = h.contactService.AddContact(ctx, claim.UserID, payload.FriendID)
 	if err != nil {
 		panic(err)
 	}

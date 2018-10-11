@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/jasonsoft/wakanda/internal/identity"
+
 	"github.com/jasonsoft/wakanda/pkg/messenger"
 )
 
@@ -10,7 +12,7 @@ type GroupService struct {
 	groupRepo messenger.GroupRepository
 }
 
-func NewGroupService() *GroupService {
+func NewGroupService(groupRepo messenger.GroupRepository) *GroupService {
 	return &GroupService{}
 }
 
@@ -38,7 +40,7 @@ func (svc *GroupService) AddGroupMember(ctx context.Context, groupID string, mem
 	panic("not implemented")
 }
 
-func (svc *GroupService) GroupMembers(ctx context.Context, opts messenger.FindGroupMemberOptions) ([]*messenger.Member, error) {
+func (svc *GroupService) GroupMembers(ctx context.Context, opts *messenger.FindGroupMemberOptions) ([]*identity.Member, error) {
 	panic("not implemented")
 }
 
@@ -50,6 +52,6 @@ func (svc *GroupService) RemoveAdmin(ctx context.Context, groupID string, member
 	panic("not implemented")
 }
 
-func (svc *GroupService) GroupAdmins(ctx context.Context, groupID string) ([]*messenger.Member, error) {
+func (svc *GroupService) GroupAdmins(ctx context.Context, groupID string) ([]*identity.Member, error) {
 	panic("not implemented")
 }

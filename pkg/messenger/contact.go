@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,30 +16,31 @@ const (
 )
 
 type Contact struct {
-	ID        string       `json:"id"`
-	MemberID1 string       `json:"member_id_1"`
-	MemberID2 string       `json:"member_id_2"`
-	State     ContactState `json:"state"`
-	CreatedAt *time.Time   `json:"created_at"`
-	UpdatedAt *time.Time   `json:"updated_at"`
+	ID        string           `json:"id"`
+	MemberID1 string           `json:"member_id_1"`
+	MemberID2 string           `json:"member_id_2"`
+	Member    *identity.Member `json:"member"`
+	State     ContactState     `json:"state"`
+	CreatedAt *time.Time       `json:"created_at"`
+	UpdatedAt *time.Time       `json:"updated_at"`
 }
 
 type FindContactOptions struct {
 	MemberID        string
-	FriendID        string
 	AnchorUpdatedAt *time.Time
-	Size            int
+	Skip            int
+	PerPage         int
 }
 
 type ContactServicer interface {
 	Contacts(ctx context.Context, opts *FindContactOptions) ([]*Contact, error)
 	BlockContact(ctx context.Context, memberID, friendID string) error
-	AddContact(ctx context.Context, contact *Contact) error
+	AddContact(ctx context.Context, memberID, friendID string) error
 }
 
 type ContactRepository interface {
 	DB() *sqlx.DB
-	Select(ctx context.Context, opts *FindContactOptions) ([]*Contact, error)
+	Contacts(ctx context.Context, opts *FindContactOptions) ([]*Contact, error)
 	Insert(ctx context.Context, target *Contact, tx *sqlx.Tx) error
 	Block(ctx context.Context, target *Contact) error
 }

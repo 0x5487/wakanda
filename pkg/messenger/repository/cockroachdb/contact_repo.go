@@ -25,7 +25,7 @@ func (repo *ContactRepo) Insert(ctx context.Context, target *messenger.Contact, 
 	return nil
 }
 
-func (repo *ContactRepo) Select(ctx context.Context, opts *messenger.FindContactOptions) ([]*messenger.Contact, error) {
+func (repo *ContactRepo) Contacts(ctx context.Context, opts *messenger.FindContactOptions) ([]*messenger.Contact, error) {
 	return nil, nil
 }
 

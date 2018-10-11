@@ -6,7 +6,17 @@ import (
 )
 
 type MessengerHandler struct {
-	ContactService messenger.ContactServicer
+	contactService      messenger.ContactServicer
+	groupService        messenger.GroupServicer
+	conversationService messenger.ConversationServicer
+}
+
+func NewMessengerHandler(contactService messenger.ContactServicer, groupService messenger.GroupServicer, conversationService messenger.ConversationServicer) *MessengerHandler {
+	return &MessengerHandler{
+		contactService:      contactService,
+		groupService:        groupService,
+		conversationService: conversationService,
+	}
 }
 
 func NewRouter(h *MessengerHandler) *napnap.Router {

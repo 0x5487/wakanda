@@ -34,10 +34,10 @@ func initialize(config *config.Configuration) {
 	conversationRepo := messengerCockroachdb.NewConversationRepo(_dbx)
 
 	contactSvc := messengerSvc.NewContactService(contactRepo, groupRepo, conversationRepo)
+	groupSvc := messengerSvc.NewGroupService(groupRepo)
+	conversationSvc := messengerSvc.NewConverstationService(conversationRepo)
 
-	_messengerHandler = &messengerHttp.MessengerHandler{
-		ContactService: contactSvc,
-	}
+	_messengerHandler = messengerHttp.NewMessengerHandler(contactSvc, groupSvc, conversationSvc)
 
 }
 
@@ -67,22 +67,24 @@ func initDatabase(config *config.Configuration) {
 	var connectionString string
 
 	bo := backoff.NewExponentialBackOff()
-	bo.MaxElapsedTime = time.Duration(40) * time.Second
+	bo.MaxElapsedTime = time.Duration(30) * time.Second
 
 	connectionString = fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=require", config.Database.Username, config.Database.Password, config.Database.Address, config.Database.DBName)
-
 	if err = backoff.Retry(func() error {
 		_dbx, err = sqlx.Open("postgres", connectionString)
 		if err != nil {
 			panic(err)
 		}
-
-		return _dbx.Ping()
+		err = _dbx.Ping()
+		if err != nil {
+			log.Errorf("main: cockroachdb ping error: %v", err)
+		}
+		return err
 	}, bo); err != nil {
 		log.Panicf("cockroachdb connect timeout: %s", err.Error())
 	}
-	log.Infof("%s ping success..", _dbx.DriverName())
 
+	log.Infof("%s ping success", _dbx.DriverName())
 	_dbx.SetMaxIdleConns(150)
 	_dbx.SetMaxOpenConns(300)
 	_dbx.SetConnMaxLifetime(14400 * time.Second)
