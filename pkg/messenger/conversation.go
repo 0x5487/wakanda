@@ -8,12 +8,13 @@ import (
 )
 
 type Conversation struct {
-	GroupID          string
-	MemberID         string
-	IsMute           bool
-	LastAckMessageID string
-	CreatedAt        *time.Time
-	UpdatedAt        *time.Time
+	ID               string     `json:"id" db:"id"`
+	GroupID          string     `json:"group_id" db:"group_id"`
+	MemberID         string     `json:"member_id" db:"member_id"`
+	IsMute           bool       `json:"is_mute" db:"is_mute"`
+	LastAckMessageID string     `json:"last_ack_message_id" db:"last_ack_message_id"`
+	CreatedAt        *time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt        *time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type FindConversionOptions struct {
@@ -37,5 +38,5 @@ type ConversationServicer interface {
 
 type ConversationRepository interface {
 	DB() *sqlx.DB
-	Insert(ctx context.Context, target *Conversation, tx *sqlx.Tx) error
+	InsertTx(ctx context.Context, target *Conversation, tx *sqlx.Tx) error
 }

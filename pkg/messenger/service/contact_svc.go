@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/jasonsoft/wakanda/internal/mytime"
+
 	"github.com/jasonsoft/wakanda/internal/hash"
 
 	"github.com/jasonsoft/cockroach-go/crdb"
@@ -29,7 +31,10 @@ func (svc *ContactService) Contacts(ctx context.Context, opts *messenger.FindCon
 	// TODO: allow max 100 per page
 
 	// get contact
-	contacts, err := svc.Contacts(ctx, opts)
+	if opts.AnchorUpdatedAt == nil {
+		opts.AnchorUpdatedAt = mytime.AnchorUpdateAt()
+	}
+	contacts, err := svc.contactRepo.Contacts(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +86,7 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 				MemberID: memberID,
 			}
 
-			err := svc.conversationRepo.Insert(ctx, conversation, tx)
+			err := svc.conversationRepo.InsertTx(ctx, conversation, tx)
 			if err != nil {
 				return err
 			}

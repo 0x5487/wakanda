@@ -2,7 +2,6 @@ package identity
 
 import (
 	"context"
-	"strings"
 
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/internal/types"
@@ -34,7 +33,16 @@ func (l *IdentityMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) 
 	token := c.RequestHeader("Authorization")
 
 	// hard-coding for test purpose
-	if strings.EqualFold(token, "aa58c0a6-32e3-4621-bb43-f45754f9f3dd") {
+	switch token {
+	case "4d96f463-dc14-44f0-af4f-c284e15c89cc":
+		stdctx := c.StdContext()
+		claim := types.Claim{
+			UserID:   "4d96f463-dc14-44f0-af4f-c284e15c89cc",
+			Username: "angela",
+		}
+		ctx := NewContext(stdctx, &claim)
+		c.SetStdContext(ctx)
+	case "aa58c0a6-32e3-4621-bb43-f45754f9f3dd":
 		stdctx := c.StdContext()
 		claim := types.Claim{
 			UserID:   "aa58c0a6-32e3-4621-bb43-f45754f9f3dd",
@@ -43,5 +51,6 @@ func (l *IdentityMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) 
 		ctx := NewContext(stdctx, &claim)
 		c.SetStdContext(ctx)
 	}
+
 	next(c)
 }

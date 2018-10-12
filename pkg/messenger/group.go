@@ -76,6 +76,7 @@ type GroupServicer interface {
 
 type GroupRepository interface {
 	DB() *sqlx.DB
+	Groups(ctx context.Context, opts *FindGroupOptions) ([]*Group, error)
 	InsertTx(ctx context.Context, target *Group, tx *sqlx.Tx) error
 }
 

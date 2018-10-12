@@ -17,8 +17,9 @@ const (
 
 type Contact struct {
 	GroupID   string           `json:"group_id" db:"group_id"`
-	MemberID1 string           `json:"member_id_1" db:"member_id_1"`
-	MemberID2 string           `json:"member_id_2" db:"member_id_2"`
+	MemberID  string           `json:"member_id" db:"member_id"`
+	MemberID1 string           `json:"-" db:"member_id_1"`
+	MemberID2 string           `json:"-" db:"member_id_2"`
 	Member    *identity.Member `json:"member"`
 	State     ContactState     `json:"state" db:"state"`
 	CreatedAt *time.Time       `json:"created_at" db:"created_at"`
@@ -26,10 +27,10 @@ type Contact struct {
 }
 
 type FindContactOptions struct {
-	MemberID        string
-	AnchorUpdatedAt *time.Time
-	Skip            int
-	PerPage         int
+	MemberID        string     `db:"member_id"`
+	AnchorUpdatedAt *time.Time `db:"anchor_updated_at"`
+	Skip            int        `db:"skip"`
+	PerPage         int        `db:"per_page"`
 }
 
 type ContactServicer interface {

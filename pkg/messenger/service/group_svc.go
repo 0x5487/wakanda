@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jasonsoft/wakanda/internal/identity"
+	"github.com/jasonsoft/wakanda/internal/mytime"
 
 	"github.com/jasonsoft/wakanda/pkg/messenger"
 )
@@ -17,7 +18,10 @@ func NewGroupService(groupRepo messenger.GroupRepository) *GroupService {
 }
 
 func (svc *GroupService) Groups(ctx context.Context, opts *messenger.FindGroupOptions) ([]*messenger.Group, error) {
-	return nil, nil
+	if opts.AnchorUpdatedAt == nil {
+		opts.AnchorUpdatedAt = mytime.AnchorUpdateAt()
+	}
+	return svc.groupRepo.Groups(ctx, opts)
 }
 
 func (svc *GroupService) CreateGroup(ctx context.Context, group *messenger.Group, memberIDs []string) error {

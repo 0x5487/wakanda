@@ -9,7 +9,7 @@ CREATE TABLE messenger_contacts (
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (group_id),
     UNIQUE INDEX uniq_member (member_id_1, member_id_2),
-    INDEX idx_updated_at (updated_at)
+    INDEX idx_member2 (member_id_2)
 );
 
 DROP TABLE IF EXISTS messenger_groups;
@@ -47,12 +47,11 @@ CREATE TABLE messenger_conversations (
     group_id UUID NOT NULL,
     member_id UUID NOT NULL,
     is_mute BOOL NOT NULL,
-    last_ack_message_id INT NOT NULL,
+    last_ack_message_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (id),
-    UNIQUE INDEX uniq_member (group_id, member_id),
-    INDEX idx_updated_at (updated_at)
+    UNIQUE INDEX uniq_member (member_id, group_id)
 );
 
 

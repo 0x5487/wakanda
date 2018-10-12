@@ -58,7 +58,7 @@ func (h *MessengerHandler) contactsMeCreateEndpoint(c *napnap.Context) {
 	}
 
 	payload := ContactCreatePayload{}
-	err := c.BindJSON(payload)
+	err := c.BindJSON(&payload)
 	if err != nil {
 		panic(err)
 	}
