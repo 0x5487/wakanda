@@ -17,7 +17,7 @@ func NewConverstationService(converstationRepo messenger.ConversationRepository)
 }
 
 func (svc *ConverstationService) Conversations(ctx context.Context, opts *messenger.FindConversionOptions) ([]*messenger.Conversation, error) {
-	panic("not implemented")
+	return svc.converstationRepo.Conversations(ctx, opts)
 }
 
 func (svc *ConverstationService) CreateConversation(ctx context.Context, conversation *messenger.Conversation) error {

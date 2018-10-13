@@ -28,9 +28,9 @@ type Group struct {
 	Name           string     `json:"name" db:"name"`
 	Description    string     `json:"description" db:"description"`
 	Type           GroupType  `json:"type" db:"type"`
-	MaxMemberCount int        `json:"max_member_count" db:"max_member_count"`
+	MaxMemberCount int        `json:"-" db:"max_member_count"`
 	MemberCount    int        `json:"member_count" db:"member_count"`
-	CreatorID      string     `json:"creator_id" db:"creator_id"`
+	CreatorID      string     `json:"-" db:"creator_id"`
 	State          GroupState `json:"state" db:"state"`
 	CreatedAt      *time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt      *time.Time `json:"updated_at" db:"updated_at"`
@@ -46,19 +46,19 @@ type GroupMember struct {
 }
 
 type FindGroupOptions struct {
-	ID              string
+	IDs             string `db:"group_ids"`
 	Type            GroupType
-	MemberID        string
-	AnchorUpdatedAt *time.Time
-	Skip            int
-	PerPage         int
+	MemberID        string     `db:"member_id"`
+	AnchorUpdatedAt *time.Time `db:"anchor_updated_at"`
+	Skip            int        `db:"skip"`
+	PerPage         int        `db:"per_page"`
 }
 
 type FindGroupMemberOptions struct {
-	GroupID         string
-	AnchorUpdatedAt *time.Time
-	Skip            int
-	PerPage         int
+	GroupID         []*string  `db:"group_id"`
+	AnchorUpdatedAt *time.Time `db:"anchor_updated_at"`
+	Skip            int        `db:"skip"`
+	PerPage         int        `db:"per_page"`
 }
 
 type GroupServicer interface {

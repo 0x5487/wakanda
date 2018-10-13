@@ -38,7 +38,7 @@ VALUES(:group_id, :member_id_1, :member_id_2, :state);`
 func (repo *ContactRepo) InsertTx(ctx context.Context, target *messenger.Contact, tx *sqlx.Tx) error {
 	logger := log.FromContext(ctx)
 
-	_, err := tx.NamedExec(insertContactSQL, target)
+	_, err := tx.NamedExecContext(ctx, insertContactSQL, target)
 	if err != nil {
 		if cockroachdb.IsErrDBDuplicate(err) {
 			return ErrContactExist
@@ -50,14 +50,14 @@ func (repo *ContactRepo) InsertTx(ctx context.Context, target *messenger.Contact
 	return nil
 }
 
-const listContactSQL = `select group_id, member_id_2 as member_id, state, created_at, updated_at from messenger_contacts where member_id_1 = :member_id and updated_at > :anchor_updated_at
+const listContactSQL = `select group_id, member_id_2 as member_id, state, created_at, updated_at from messenger_contacts where member_id_1 = :member_id and updated_at >= :anchor_updated_at
 union all
-select group_id, member_id_1 as member_id, state, created_at, updated_at from messenger_contacts where member_id_2 = :member_id and updated_at > :anchor_updated_at`
+select group_id, member_id_1 as member_id, state, created_at, updated_at from messenger_contacts where member_id_2 = :member_id and updated_at >= :anchor_updated_at`
 
 func (repo *ContactRepo) Contacts(ctx context.Context, opts *messenger.FindContactOptions) ([]*messenger.Contact, error) {
 	logger := log.FromContext(ctx)
 
-	listContactSQLStmt, err := repo.db.PrepareNamed(listContactSQL)
+	listContactSQLStmt, err := repo.db.PrepareNamedContext(ctx, listContactSQL)
 	if err != nil {
 		logger.Errorf("cockroachdb: prepare listContactSQL fail: %v", err)
 		return nil, err

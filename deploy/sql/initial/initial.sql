@@ -48,6 +48,7 @@ CREATE TABLE messenger_conversations (
     member_id UUID NOT NULL,
     is_mute BOOL NOT NULL,
     last_ack_message_id UUID NOT NULL,
+    state INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (id),

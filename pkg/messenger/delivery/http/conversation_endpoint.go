@@ -12,7 +12,7 @@ import (
 
 func (h *MessengerHandler) conversationMeListEndpoint(c *napnap.Context) {
 	ctx := c.StdContext()
-	pagination := pagination.FromContext(c)
+	pager := pagination.FromContext(c)
 
 	claim, found := identity.FromContext(ctx)
 	if found == false {
@@ -22,8 +22,8 @@ func (h *MessengerHandler) conversationMeListEndpoint(c *napnap.Context) {
 
 	listConversionOpts := &messenger.FindConversionOptions{
 		MemberID: claim.UserID,
-		Skip:     pagination.Skip(),
-		PerPage:  pagination.PerPage,
+		Skip:     pager.Skip(),
+		PerPage:  pager.PerPage,
 	}
 
 	anchorUpdatedAtStr := c.Query("anchor_updated_at")
@@ -40,5 +40,10 @@ func (h *MessengerHandler) conversationMeListEndpoint(c *napnap.Context) {
 		panic(err)
 	}
 
-	c.JSON(200, conversations)
+	//pager.SetTotalCountAndPage(total)
+	apiResult := pagination.ApiPagiationResult{}
+	apiResult.Pagination = pager
+	apiResult.Data = conversations
+
+	c.JSON(200, apiResult)
 }

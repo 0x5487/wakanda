@@ -36,12 +36,13 @@ type FindMessagesOptions struct {
 	ID             string
 	MemberID       string
 	GroupID        string
-	StartMessageID int64
-	Size           int
+	StartMessageID string `db:"start_message_id"`
+	Skip           int    `db:"skip"`
+	PerPage        int    `db:"per_page"`
 }
 
 type Messager interface {
-	Messages(ctx context.Context, opts FindMessagesOptions) ([]*Message, error)
-	CreateMessage(ctx context.Context, msg *Message) error
-	AckMessage(ctx context.Context, ConversationID string, ackMsgID int64, memberID string) error
+	Messages(ctx context.Context, opts *FindMessagesOptions) ([]*Message, error)
+	SendMessage(ctx context.Context, msg *Message) error
+	AckMessage(ctx context.Context, conversationID string, ackMsgID string, memberID string) error
 }

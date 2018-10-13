@@ -84,6 +84,7 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 			conversation := &messenger.Conversation{
 				GroupID:  group.ID,
 				MemberID: memberID,
+				State:    messenger.ConversationStateNormal,
 			}
 
 			err := svc.conversationRepo.InsertTx(ctx, conversation, tx)
