@@ -4,17 +4,11 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/jasonsoft/wakanda/internal/types"
-
 	"github.com/jasonsoft/wakanda/internal/cockroachdb"
 
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/wakanda/pkg/messenger"
 	"github.com/jmoiron/sqlx"
-)
-
-var (
-	ErrContactExist = types.AppError{ErrorCode: "contact_exist", Message: "the contact already exists"}
 )
 
 type ContactRepo struct {
@@ -41,7 +35,7 @@ func (repo *ContactRepo) InsertTx(ctx context.Context, target *messenger.Contact
 	_, err := tx.NamedExecContext(ctx, insertContactSQL, target)
 	if err != nil {
 		if cockroachdb.IsErrDBDuplicate(err) {
-			return ErrContactExist
+			return messenger.ErrContactExist
 		}
 		logger.Errorf("cockroachdb: insert messenger_contacts table failed: %v", err)
 		return err

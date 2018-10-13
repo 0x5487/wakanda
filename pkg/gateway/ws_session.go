@@ -1,9 +1,12 @@
 package gateway
 
 import (
+	"context"
 	"encoding/json"
 	"sync"
 	"time"
+
+	"github.com/jasonsoft/wakanda/pkg/messenger/proto"
 
 	"github.com/gorilla/websocket"
 	"github.com/jasonsoft/log"
@@ -143,6 +146,7 @@ func (s *WSSession) StartTasks() {
 		buf         []byte
 	)
 
+	ctx := context.Background()
 	for {
 		message = s.ReadMessage()
 
@@ -174,7 +178,23 @@ func (s *WSSession) StartTasks() {
 				continue
 			}
 		default:
-			log.Warnf("gateway: unknown command: %s", commandReq.OP)
+			in := proto.HandleCommandRequest{
+				Op:   commandReq.OP,
+				Data: commandReq.Data,
+			}
+			handleCommandReply, err := _messengerClient.HandleCommand(ctx, &in)
+			if err != nil {
+				log.Errorf("gateway: command error from server: %v", err)
+			}
+
+			if handleCommandReply != nil && len(handleCommandReply.Op) > 0 {
+				log.Debugf("gateway: receive command resp from server: %s", handleCommandReply.Op)
+				commandResp = &Command{
+					OP:   handleCommandReply.Op,
+					Data: handleCommandReply.Data,
+				}
+			}
+
 		}
 
 		if commandResp != nil {

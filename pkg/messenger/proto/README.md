@@ -1,0 +1,1 @@
+protoc pkg/messenger/proto/dispatcher.proto --go_out=plugins=grpc:.

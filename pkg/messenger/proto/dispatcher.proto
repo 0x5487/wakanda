@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+
+package proto;
+
+// The request message containing the user's name.
+message HandleCommandRequest {
+  string OP = 1;
+  bytes Data = 2;
+}
+
+// The response message containing the greetings
+message HandleCommandReply {
+  string OP = 1;
+  bytes Data = 2;
+}
+
+
+// The dispatcher service definition.
+service Dispatcher {
+  // handle a command
+  rpc HandleCommand (HandleCommandRequest) returns (HandleCommandReply) {}
+}
+

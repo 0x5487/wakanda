@@ -3,10 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	messengerGRPC "github.com/jasonsoft/wakanda/pkg/messenger/delivery/grpc"
+	messengerProto "github.com/jasonsoft/wakanda/pkg/messenger/proto"
+	"google.golang.org/grpc"
 
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/napnap"
@@ -28,10 +33,27 @@ func main() {
 	config := config.New("app.yml")
 	initialize(config)
 
+	// start grpc
+	lis, err := net.Listen("tcp", ":16998")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+
+	dispatcherserver := messengerGRPC.NewDispatchServer()
+	messengerProto.RegisterDispatcherServer(s, dispatcherserver)
+	go func() {
+		log.Info("messenger grpc service started")
+		if err = s.Serve(lis); err != nil {
+			log.Fatalf("failed to start dispatcher grpc server: %v", err)
+		}
+	}()
+
+	// start http service
 	nap := napWithMiddlewares()
 	httpEngine := napnap.NewHttpEngine(config.Messenger.Bind)
 	go func() {
-		log.Info("messenger service started")
+		log.Info("messenger http service started")
 		err := nap.Run(httpEngine)
 		if err != nil {
 			log.Error(err)

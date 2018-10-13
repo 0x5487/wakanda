@@ -66,6 +66,15 @@
                 ws.send(JSON.stringify({op: "PUSHALL", data: msg.value}));
                 return false;
             };
+            document.getElementById("msg").onclick = function(evt) {
+                if (!ws) {
+                    return false;
+                }
+                msg = document.querySelector("#txtMsg");
+                print("MSG: " + msg.value);
+                ws.send(JSON.stringify({op: "MSG", data: msg.value}));
+                return false;
+            };
         });
     </script>
 </head>
@@ -85,6 +94,7 @@
         <p>
             <input text="textarea" id="txtMsg" value="hello"/>
             <button id="pushall">PUSHALL</button>
+            <button id="msg">MSG</button>
         </p>
         </form>
     </td><td valign="top" width="50%">

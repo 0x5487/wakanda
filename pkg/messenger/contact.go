@@ -4,8 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/jasonsoft/wakanda/internal/types"
+
 	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jmoiron/sqlx"
+)
+
+var (
+	ErrContactExist = types.AppError{ErrorCode: "contact_exist", Message: "the contact already exists"}
 )
 
 type ContactState int
