@@ -1,8 +1,6 @@
 *.exe
+app.yml
 /.vscode
-/bifrost
-/config.yml
-/debug
-/cmd/gateway/client
-/cmd/gateway/server
-/cmd/messenger/app.yml
+
+
+

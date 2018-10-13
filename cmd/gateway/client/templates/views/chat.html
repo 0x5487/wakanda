@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script>
+        window.addEventListener("load", function(evt) {
+            var output = document.getElementById("output");
+            var input = document.getElementById("input");
+            var ws;
+            var print = function(message) {
+                var d = document.createElement("div");
+                d.innerHTML = message;
+                output.appendChild(d);
+            };
+            document.getElementById("open").onclick = function(evt) {
+                if (ws) {
+                    return false;
+                }
+                ws = new WebSocket("ws://localhost:19999/ws");
+                ws.onopen = function(evt) {
+                    print("OPEN");
+                }
+                ws.onclose = function(evt) {
+                    print("CLOSE");
+                    ws = null;
+                }
+                ws.onmessage = function(evt) {
+                    print("RESPONSE: " + evt.data);
+                }
+                ws.onerror = function(evt) {
+                    print("ERROR content: " + evt.data);
+                }
+                return false;
+            };
+            document.getElementById("close").onclick = function(evt) {
+                if (!ws) {
+                    return false;
+                }
+                ws.close(1000, "close");
+                return false;
+            };
+            document.getElementById("join").onclick = function(evt) {
+                if (!ws) {
+                    return false;
+                }
+                roomID = document.querySelector("#txtRoomID");
+                print("JOIN: " + roomID.value);
+                ws.send(JSON.stringify({op: "JOIN", data: {"room_id": roomID.value}}));
+                return false;
+            };
+            document.getElementById("leave").onclick = function(evt) {
+                if (!ws) {
+                    return false;
+                }
+                roomID = document.querySelector("#txtRoomID");
+                print("LEVAE: " + roomID.value);
+                ws.send(JSON.stringify({op: "LEAVE", data: {"room_id": roomID.value}}));
+                return false;
+            };
+            document.getElementById("pushall").onclick = function(evt) {
+                if (!ws) {
+                    return false;
+                }
+                msg = document.querySelector("#txtMsg");
+                print("PUSHALL: " + msg.value);
+                ws.send(JSON.stringify({op: "PUSHALL", data: msg.value}));
+                return false;
+            };
+        });
+    </script>
+</head>
+<body>
+<table width="100%">
+    <tr><td valign="top" width="50%">
+        <form>
+        <p>
+            <button id="open">Open</button>
+            <button id="close">Close</button>
+        </p>
+        <p>
+            <input id="txtRoomID" type="text" value="ROA">
+            <button id="join">JOIN</button>
+            <button id="leave">LEAVE</button><br/>
+        </p>
+        <p>
+            <input text="textarea" id="txtMsg" value="hello"/>
+            <button id="pushall">PUSHALL</button>
+        </p>
+        </form>
+    </td><td valign="top" width="50%">
+        <div id="output"></div>
+    </td></tr></table>
+</body>
+</html>

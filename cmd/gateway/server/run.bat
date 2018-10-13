@@ -1,0 +1,1 @@
+go build -o gateway.exe && "gateway.exe"
