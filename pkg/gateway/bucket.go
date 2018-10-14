@@ -87,22 +87,11 @@ func (b *Bucket) leaveRoom(roomID string, session *WSSession) {
 }
 
 func (b *Bucket) pushRoom(roomID string, command *Command) {
-	var (
-		session *WSSession
-		ok      bool
-	)
-
-	b.sessions.Range(func(key, value interface{}) bool {
-		session, ok = value.(*WSSession)
-		if ok {
-			msg, err := command.ToWSMessage()
-			if err != nil {
-				return true // continue
-			}
-			session.SendMessage(msg)
-		}
-		return true
-	})
+	room := b.room(roomID)
+	if room == nil {
+		return
+	}
+	room.push(command)
 }
 
 func (b *Bucket) count() int {

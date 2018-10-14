@@ -7,12 +7,13 @@ import (
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/internal/config"
 	"github.com/jasonsoft/wakanda/internal/middleware"
+	"github.com/jasonsoft/wakanda/pkg/gateway"
 	gatewayHttp "github.com/jasonsoft/wakanda/pkg/gateway/delivery/http"
 )
 
 func initialize(config *config.Configuration) {
 	initLogger("gateway", config)
-
+	gateway.Initialize(config)
 }
 
 func initLogger(appID string, config *config.Configuration) {

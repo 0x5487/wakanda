@@ -26,7 +26,7 @@ func (r *Room) join(session *WSSession) {
 func (r *Room) leave(session *WSSession) {
 	r.sessions.Delete(session.ID)
 	session.rooms.Delete(r.id)
-	log.Infof("gateway: session id %s leaved the room id %s", session.ID, r.id)
+	log.Infof("gateway: session id %s leaved room id %s", session.ID, r.id)
 }
 
 func (r *Room) count() int {
@@ -36,4 +36,22 @@ func (r *Room) count() int {
 		return true
 	})
 	return length
+}
+
+func (r *Room) push(command *Command) {
+	var (
+		session *WSSession
+		ok      bool
+	)
+	r.sessions.Range(func(key, value interface{}) bool {
+		session, ok = value.(*WSSession)
+		if ok {
+			msg, err := command.ToWSMessage()
+			if err != nil {
+				return true
+			}
+			session.SendMessage(msg)
+		}
+		return true
+	})
 }

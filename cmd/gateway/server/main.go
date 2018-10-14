@@ -12,7 +12,6 @@ import (
 
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/napnap"
-	"github.com/jasonsoft/wakanda/pkg/gateway"
 )
 
 func main() {
@@ -29,10 +28,9 @@ func main() {
 
 	config := config.New("app.yml")
 	initialize(config)
-	gateway.Initialize()
 
 	nap := napWithMiddlewares()
-	httpEngine := napnap.NewHttpEngine(":19999")
+	httpEngine := napnap.NewHttpEngine(config.Gateway.Bind)
 	go func() {
 		log.Info("gateway: gateway service started")
 		err := nap.Run(httpEngine)
