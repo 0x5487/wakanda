@@ -8,11 +8,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jasonsoft/wakanda/internal/config"
+
 	"github.com/jasonsoft/log"
-	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
-	gatewayHttp "github.com/jasonsoft/wakanda/pkg/gateway/delivery/http"
 )
 
 func main() {
@@ -27,21 +27,14 @@ func main() {
 		}
 	}()
 
-	log.SetAppID("gateway") // unique id for the app
-
-	clog := console.New()
-	log.RegisterHandler(clog, log.AllLevels...)
-
+	config := config.New("app.yml")
+	initialize(config)
 	gateway.Initialize()
 
-	nap := napnap.New()
-	//router := napnap.NewRouter()
-	nap.Use(napnap.NewHealth())
-	nap.Use(gatewayHttp.NewGatewayRouter())
-
+	nap := napWithMiddlewares()
 	httpEngine := napnap.NewHttpEngine(":19999")
 	go func() {
-		log.Info("gateway started")
+		log.Info("gateway: gateway service started")
 		err := nap.Run(httpEngine)
 		if err != nil {
 			log.Error(err)
@@ -51,7 +44,7 @@ func main() {
 	stopChan := make(chan os.Signal, 1)
 	signal.Notify(stopChan, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
 	<-stopChan
-	log.Info("shutting down server...")
+	log.Info("gateway: shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

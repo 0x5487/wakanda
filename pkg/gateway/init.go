@@ -3,6 +3,8 @@ package gateway
 import (
 	"context"
 
+	"github.com/jasonsoft/wakanda/internal/config"
+
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/wakanda/pkg/messenger/proto"
 	"google.golang.org/grpc"
@@ -27,7 +29,7 @@ func (c customCredential) RequireTransportSecurity() bool {
 	return false
 }
 
-func Initialize() {
+func Initialize(config *config.Configuration) {
 	_manager = NewManager()
 
 	// Set up a connection to the server.
@@ -36,7 +38,7 @@ func Initialize() {
 	// 使用自定義認證
 	opts = append(opts, grpc.WithPerRPCCredentials(new(customCredential)))
 
-	conn, err := grpc.Dial("localhost:16998", opts...)
+	conn, err := grpc.Dial(config.Messenger.AdvertiseAddr, opts...)
 	if err != nil {
 		log.Fatalf("gateway: can't connect to messenger grpc service: %v", err)
 	}

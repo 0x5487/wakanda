@@ -9,4 +9,5 @@ logs:
     type: console
     min_level: debug
 messenger:
+  advertise_addr: "localhost:16999"
   bind: ":16999"

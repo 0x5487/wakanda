@@ -151,6 +151,7 @@ func (s *WSSession) StartTasks() {
 		message = s.ReadMessage()
 
 		if message.MsgType != websocket.TextMessage {
+			log.Info("gateway: message type is not text message")
 			continue
 		}
 
@@ -179,22 +180,22 @@ func (s *WSSession) StartTasks() {
 			}
 		default:
 			in := proto.HandleCommandRequest{
-				Op:   commandReq.OP,
+				OP:   commandReq.OP,
 				Data: commandReq.Data,
 			}
 			handleCommandReply, err := _messengerClient.HandleCommand(ctx, &in)
 			if err != nil {
-				log.Errorf("gateway: command error from server: %v", err)
+				log.Errorf("gateway: command error from messenger server: %v", err)
+				continue
 			}
 
-			if handleCommandReply != nil && len(handleCommandReply.Op) > 0 {
-				log.Debugf("gateway: receive command resp from server: %s", handleCommandReply.Op)
+			if handleCommandReply != nil && len(handleCommandReply.OP) > 0 {
+				log.Debugf("gateway: receive command resp from server: %s", handleCommandReply.OP)
 				commandResp = &Command{
-					OP:   handleCommandReply.Op,
+					OP:   handleCommandReply.OP,
 					Data: handleCommandReply.Data,
 				}
 			}
-
 		}
 
 		if commandResp != nil {

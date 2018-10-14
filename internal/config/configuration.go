@@ -28,10 +28,12 @@ type Configuration struct {
 		DBName   string
 	}
 	Messenger struct {
-		Bind string
+		AdvertiseAddr string `yaml:"advertise_addr"`
+		Bind          string
 	}
 	Gateway struct {
-		Bind string
+		AdvertiseAddr string `yaml:"advertise_addr"`
+		Bind          string
 	}
 }
 

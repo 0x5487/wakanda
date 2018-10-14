@@ -34,7 +34,7 @@ type GatewayHandler struct {
 
 func wsEndpoint(c *napnap.Context) {
 	defer func() {
-		log.Debug("socket end.")
+		log.Debug("gateway: ws socket endpoint end")
 	}()
 	member := &types.Member{}
 
