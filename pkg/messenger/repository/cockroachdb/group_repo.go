@@ -70,3 +70,7 @@ func (repo *GroupRepo) Groups(ctx context.Context, opts *messenger.FindGroupOpti
 	}
 	return groups, nil
 }
+
+func (repo *GroupRepo) IsMemberInGroup(ctx context.Context, memberID, groupID string) bool {
+	panic("not implemented")
+}

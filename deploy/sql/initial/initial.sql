@@ -38,7 +38,8 @@ CREATE TABLE messenger_group_members (
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (id),
-    UNIQUE INDEX uniq_member (group_id, member_id)
+    UNIQUE INDEX uniq_member (member_id, group_id),
+    INDEX idx_group (group_id)
 );
 
 DROP TABLE IF EXISTS messenger_conversations;
