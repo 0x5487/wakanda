@@ -30,6 +30,7 @@ const (
 
 type Message struct {
 	ID              string
+	RequestID       string
 	GroupID         string
 	SenderID        string
 	SenderFirstName string

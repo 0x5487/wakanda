@@ -8,6 +8,12 @@ logs:
   - name: clog
     type: console
     min_level: debug
+gateway:
+  advertise_addr: "localhost:19999"
+  bind: ":19999"
+dispatcher:
+  advertise_addr: "localhost:18797"
+  bind: ":18797"
 messenger:
   advertise_addr: "localhost:16999"
   bind: ":16999"

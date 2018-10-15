@@ -6,7 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jasonsoft/wakanda/pkg/messenger/proto"
+	"google.golang.org/grpc/metadata"
+
+	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 
 	"github.com/gorilla/websocket"
 	"github.com/jasonsoft/log"
@@ -146,7 +148,6 @@ func (s *WSSession) StartTasks() {
 		buf         []byte
 	)
 
-	ctx := context.Background()
 	for {
 		message = s.ReadMessage()
 
@@ -179,11 +180,15 @@ func (s *WSSession) StartTasks() {
 				continue
 			}
 		default:
-			in := proto.HandleCommandRequest{
-				OP:   commandReq.OP,
-				Data: commandReq.Data,
+			in := proto.CommandRequest{
+				ReqID: commandReq.RequestID,
+				OP:    commandReq.OP,
+				Data:  commandReq.Data,
 			}
-			handleCommandReply, err := _messengerClient.HandleCommand(ctx, &in)
+
+			md := metadata.Pairs("req_id", commandReq.RequestID)
+			ctx := metadata.NewOutgoingContext(context.Background(), md)
+			handleCommandReply, err := _dispatcherClient.HandleCommand(ctx, &in)
 			if err != nil {
 				log.Errorf("gateway: command error from messenger server: %v", err)
 				continue
@@ -192,8 +197,9 @@ func (s *WSSession) StartTasks() {
 			if handleCommandReply != nil && len(handleCommandReply.OP) > 0 {
 				log.Debugf("gateway: receive command resp from server: %s", handleCommandReply.OP)
 				commandResp = &Command{
-					OP:   handleCommandReply.OP,
-					Data: handleCommandReply.Data,
+					RequestID: handleCommandReply.ReqID,
+					OP:        handleCommandReply.OP,
+					Data:      handleCommandReply.Data,
 				}
 			}
 		}

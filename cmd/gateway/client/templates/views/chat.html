@@ -3,6 +3,13 @@
 <head>
     <meta charset="utf-8">
     <script>
+        function uuidv4() {
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            )
+        }
+
+
         window.addEventListener("load", function(evt) {
             var output = document.getElementById("output");
             var input = document.getElementById("input");
@@ -72,7 +79,7 @@
                 }
                 msg = document.querySelector("#txtMsg");
                 print("MSG: " + msg.value);
-                ws.send(JSON.stringify({op: "MSG", data: msg.value}));
+                ws.send(JSON.stringify({req_id: uuidv4(), op: "MSG", data: msg.value}));
                 return false;
             };
         });

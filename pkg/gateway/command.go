@@ -7,8 +7,9 @@ import (
 )
 
 type Command struct {
-	OP   string          `json:"op"`
-	Data json.RawMessage `json:"data"`
+	RequestID string          `json:"req_id"`
+	OP        string          `json:"op"`
+	Data      json.RawMessage `json:"data"`
 }
 
 func CreateCommand(buf []byte) (*Command, error) {

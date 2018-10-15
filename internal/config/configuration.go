@@ -27,6 +27,10 @@ type Configuration struct {
 		Type     string
 		DBName   string
 	}
+	Dispatcher struct {
+		AdvertiseAddr string `yaml:"advertise_addr"`
+		Bind          string
+	}
 	Messenger struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`
 		Bind          string

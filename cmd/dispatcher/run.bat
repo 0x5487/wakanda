@@ -1,0 +1,1 @@
+go build -o dispatcher.exe && "dispatcher.exe"

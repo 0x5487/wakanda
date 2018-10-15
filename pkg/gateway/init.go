@@ -6,13 +6,13 @@ import (
 	"github.com/jasonsoft/wakanda/internal/config"
 
 	"github.com/jasonsoft/log"
-	"github.com/jasonsoft/wakanda/pkg/messenger/proto"
+	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	"google.golang.org/grpc"
 )
 
 var (
-	_manager         *Manager
-	_messengerClient proto.DispatcherClient
+	_manager          *Manager
+	_dispatcherClient proto.DispatcherClient
 )
 
 // customCredential 自定義認證
@@ -38,11 +38,11 @@ func Initialize(config *config.Configuration) {
 	// 使用自定義認證
 	opts = append(opts, grpc.WithPerRPCCredentials(new(customCredential)))
 
-	conn, err := grpc.Dial(config.Messenger.AdvertiseAddr, opts...)
+	conn, err := grpc.Dial(config.Dispatcher.AdvertiseAddr, opts...)
 	if err != nil {
 		log.Fatalf("gateway: can't connect to messenger grpc service: %v", err)
 	}
 	//defer conn.Close()
 
-	_messengerClient = proto.NewDispatcherClient(conn)
+	_dispatcherClient = proto.NewDispatcherClient(conn)
 }
