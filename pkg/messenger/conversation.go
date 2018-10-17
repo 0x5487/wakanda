@@ -11,6 +11,8 @@ type ConversationState int
 
 const (
 	ConversationStateNormal ConversationState = 1
+	ConversationStateBlock  ConversationState = 2
+	ConversationStateDelete ConversationState = 3
 )
 
 type Conversation struct {

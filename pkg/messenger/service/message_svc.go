@@ -41,6 +41,8 @@ func (svc *MessageService) CreateMessage(ctx context.Context, msg *messenger.Mes
 		return messenger.ErrMessageInvalid
 	}
 
+	// if group type is p2p, ensure friendship is available
+
 	// save message
 	svc.messageChan <- msg
 	return nil
