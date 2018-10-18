@@ -13,9 +13,27 @@ message SessionInfosReply {
   string Server = 3;
 }
 
+message DeleteSessionRequest {
+  string ID = 1;
+}
+
+message DeleteSessionReply {
+
+}
+
+
+message UpdateSessionRequest {
+  string ID = 1;
+  string MemberID = 2;
+  string Server = 3;
+}
+
+message UpdateSessionReply {
+}
 
 // The session service definition.
 service SessionService {
-  // handle a command
   rpc SessionInfos (SessionInfosRequest) returns (SessionInfosReply) {}
+  rpc DeleteSession (DeleteSessionRequest) returns (DeleteSessionReply) {}
+  rpc UpdateSession (UpdateSessionRequest) returns (UpdateSessionReply) {}
 }

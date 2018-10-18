@@ -6,13 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/grpc/metadata"
-
-	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
-
 	"github.com/gorilla/websocket"
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/wakanda/internal/types"
+	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
+	"google.golang.org/grpc/metadata"
 )
 
 const (
@@ -26,7 +24,7 @@ const (
 	pingPeriod = 5
 
 	// Maximum message size allowed from peer.
-	maxMessageSize = 512
+	maxMessageSize = 2048
 )
 
 type WSSession struct {
@@ -53,7 +51,10 @@ func (s *WSSession) readLoop() {
 		s.Close()
 	}()
 	s.socket.SetReadLimit(maxMessageSize)
-	s.socket.SetPongHandler(func(string) error { s.socket.SetReadDeadline(time.Now().Add(readWait)); return nil })
+	s.socket.SetPongHandler(func(string) error {
+		s.socket.SetReadDeadline(time.Now().Add(readWait))
+		return nil
+	})
 
 	var (
 		msgType int
