@@ -177,7 +177,7 @@ func (s *WSSession) StartTasks() {
 		case "PUSHALL":
 			commandResp, err = s.handlePushAll(commandReq)
 			if err != nil {
-				log.Errorf("gateway: handle LEAVE command error: %v", err)
+				log.Errorf("gateway: handle PUSHALL command error: %v", err)
 				continue
 			}
 		default:

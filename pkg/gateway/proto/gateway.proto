@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+
+package proto;
+
+message SendCommandRequest {
+    string Type = 1;
+    string TargetID = 2;
+    bytes Data = 3;
+}
+
+message EmptyReply {}
+
+// The gateway service definition.
+service GatewayService {
+  rpc SendCommand (SendCommandRequest) returns (EmptyReply) {}
+}
