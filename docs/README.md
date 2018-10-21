@@ -25,3 +25,7 @@
 #### 架構
 1. http://www.52im.net/thread-1221-1-1.html
 1. http://www.52im.net/thread-812-1-1.html
+
+
+#### 訊息安全
+1. http://www.52im.net/thread-970-1-1.html
