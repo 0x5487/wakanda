@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"gitlab.paradise-soft.com.tw/rd/log"
-	"gitlab.paradise-soft.com.tw/rd/log/handlers/console"
-	"gitlab.paradise-soft.com.tw/rd/napnap"
+	"github.com/jasonsoft/log"
+	"github.com/jasonsoft/log/handlers/console"
+	"github.com/jasonsoft/napnap"
 )
 
 func main() {

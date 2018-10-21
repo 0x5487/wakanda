@@ -191,7 +191,7 @@ func (s *WSSession) StartTasks() {
 			ctx := metadata.NewOutgoingContext(context.Background(), md)
 			handleCommandReply, err := _dispatcherClient.HandleCommand(ctx, &in)
 			if err != nil {
-				log.Errorf("gateway: command error from messenger server: %v", err)
+				log.Errorf("gateway: command error from dispatcher server: %v", err)
 				continue
 			}
 

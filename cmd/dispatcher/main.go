@@ -6,7 +6,6 @@ import (
 
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/wakanda/internal/config"
-	dispatcherGRPC "github.com/jasonsoft/wakanda/pkg/dispatcher/delivery/grpc"
 	dispatcherProto "github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	"google.golang.org/grpc"
 )
@@ -26,15 +25,13 @@ func main() {
 	config := config.New("app.yml")
 	initialize(config)
 
-	// start grpc
+	// start grpc servers
 	lis, err := net.Listen("tcp", config.Dispatcher.Bind)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-
-	dispatcherserver := dispatcherGRPC.NewDispatchServer()
-	dispatcherProto.RegisterDispatcherServer(s, dispatcherserver)
+	dispatcherProto.RegisterDispatcherServer(s, _dispatcherServer)
 	log.Info("dispatcher: grpc service started")
 	if err = s.Serve(lis); err != nil {
 		log.Fatalf("dispatcher: failed to start dispatcher grpc server: %v", err)

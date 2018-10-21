@@ -33,19 +33,19 @@ func main() {
 	config := config.New("app.yml")
 	initialize(config)
 
-	// start grpc
+	// start grpc server
 	lis, err := net.Listen("tcp", ":16998")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 
-	dispatcherserver := messengerGRPC.NewDispatchServer()
-	messengerProto.RegisterDispatcherServer(s, dispatcherserver)
+	messageServer := messengerGRPC.NewMessageServer()
+	messengerProto.RegisterMessageServiceServer(s, messageServer)
 	go func() {
-		log.Info("messenger grpc service started")
+		log.Info("messenger: grpc service started")
 		if err = s.Serve(lis); err != nil {
-			log.Fatalf("failed to start dispatcher grpc server: %v", err)
+			log.Fatalf("messenger: failed to start messenger grpc server: %v", err)
 		}
 	}()
 
@@ -53,7 +53,7 @@ func main() {
 	nap := napWithMiddlewares()
 	httpEngine := napnap.NewHttpEngine(config.Messenger.Bind)
 	go func() {
-		log.Info("messenger http service started")
+		log.Info("messenger: http service started")
 		err := nap.Run(httpEngine)
 		if err != nil {
 			log.Error(err)
@@ -63,13 +63,13 @@ func main() {
 	stopChan := make(chan os.Signal, 1)
 	signal.Notify(stopChan, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
 	<-stopChan
-	log.Info("shutting down server...")
+	log.Info("messenger: http shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := httpEngine.Shutdown(ctx); err != nil {
-		log.Errorf("hanlder shutdown error: %v", err)
+		log.Errorf("messenger: http hanlder shutdown error: %v", err)
 	} else {
-		log.Info("gracefully stopped")
+		log.Info("messenger: http gracefully stopped")
 	}
 }

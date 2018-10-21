@@ -4,10 +4,12 @@ syntax = "proto3";
 package proto;
 
 message SendCommandRequest {
-    string Type = 1;
+    string type = 1;
     string TargetID = 2;
     bytes Data = 3;
 }
+
+message EmptyRequest {}
 
 message EmptyReply {}
 

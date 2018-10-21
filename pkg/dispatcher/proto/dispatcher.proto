@@ -19,7 +19,7 @@ message CommandReply {
 
 
 // The dispatcher service definition.
-service Dispatcher {
+service DispatcherService {
   // handle a command
   rpc HandleCommand (CommandRequest) returns (CommandReply) {}
 }

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+
+package proto;
+
+
+message CreateMessageRequest {
+  bytes Data = 1;
+}
+
+
+message EmptyRequest {}
+
+message EmptyReply {}
+
+
+service MessageService {
+  rpc CreateMessage (CreateMessageRequest) returns (EmptyReply) {}
+}
