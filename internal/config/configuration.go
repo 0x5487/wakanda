@@ -27,6 +27,11 @@ type Configuration struct {
 		Type     string
 		DBName   string
 	}
+	Nats struct {
+		Username string
+		Password string
+		Address  string
+	}
 	Dispatcher struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`
 		Bind          string

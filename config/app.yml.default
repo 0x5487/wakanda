@@ -4,6 +4,10 @@ database:
   username:
   password: 
   dbname: dev.wakanda
+nats:
+  address:
+  username:
+  password: 
 logs:
   - name: clog
     type: console
