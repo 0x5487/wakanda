@@ -1,0 +1,1 @@
+protoc pkg/gateway/proto/gateway.proto --go_out=plugins=grpc:.

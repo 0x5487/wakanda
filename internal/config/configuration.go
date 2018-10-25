@@ -28,9 +28,10 @@ type Configuration struct {
 		DBName   string
 	}
 	Nats struct {
-		Username string
-		Password string
-		Address  string
+		ClusterID string `yaml:"cluster_id"`
+		Username  string
+		Password  string
+		Address   string
 	}
 	Dispatcher struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`

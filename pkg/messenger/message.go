@@ -51,7 +51,7 @@ type FindMessagesOptions struct {
 	PerPage         int
 }
 
-type Messager interface {
+type MessageServicer interface {
 	Messages(ctx context.Context, opts *FindMessagesOptions) ([]*Message, error)
 	CreateMessage(ctx context.Context, msg *Message) error
 	AckMessage(ctx context.Context, conversationID string, ackMsgID string, memberID string) error

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/jasonsoft/wakanda/pkg/messenger"
+
 	"google.golang.org/grpc/metadata"
 
 	"github.com/jasonsoft/log"
@@ -11,10 +13,13 @@ import (
 )
 
 type MessageServer struct {
+	messageSvc messenger.MessageServicer
 }
 
-func NewMessageServer() *MessageServer {
-	return &MessageServer{}
+func NewMessageServer(messageservice messenger.MessageServicer) *MessageServer {
+	return &MessageServer{
+		messageSvc: messageservice,
+	}
 }
 
 func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessageRequest) (*proto.EmptyReply, error) {
@@ -30,12 +35,17 @@ func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessa
 	}
 	logger := log.WithFields(customFields)
 
-	msg := ""
-	err := json.Unmarshal(in.Data, &msg)
+	content := ""
+	err := json.Unmarshal(in.Data, &content)
 	if err != nil {
 		return nil, err
 	}
-	logger.Debugf("messenger: MSG data: %s", msg)
+	logger.Debugf("messenger: MSG data: %s", content)
+
+	msg := &messenger.Message{
+		RequestID: reqID,
+	}
+	s.messageSvc.CreateMessage(ctx, msg)
 
 	return new(proto.EmptyReply), nil
 }
