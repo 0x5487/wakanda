@@ -4,7 +4,11 @@ syntax = "proto3";
 package proto;
 
 message SendCommandRequest {
-    string type = 1;
+  repeated Command Commands = 1;
+}
+
+message Command {
+    string Type = 1;
     string TargetID = 2;
     bytes Data = 3;
 }

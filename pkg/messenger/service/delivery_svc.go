@@ -26,5 +26,7 @@ func (svc *DeliveryService) DeliveryMessage(ctx context.Context, msg *messenger.
 	// 	return err
 	// }
 
+	Gatew
+
 	return nil
 }
