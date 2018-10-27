@@ -45,7 +45,7 @@ func (svc *MessageService) startTasks() {
 
 			}
 
-			// send message to delivery subject
+			// send messages to delivery subject
 			svc.natsConn.Publish("delivery", bytes)
 		}
 	}

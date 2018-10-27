@@ -1,0 +1,1 @@
+protoc pkg/router/proto/router.proto --go_out=plugins=grpc:.

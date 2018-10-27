@@ -94,6 +94,27 @@ func (b *Bucket) pushRoom(roomID string, command *Command) {
 	room.push(command)
 }
 
+func (b *Bucket) session(sessionID string) *WSSession {
+	session, found := b.sessions.Load(sessionID)
+	if found {
+		session, ok := session.(*WSSession)
+		if ok {
+			return session
+		}
+	}
+	return nil
+}
+
+func (b *Bucket) push(sessionID string, command *Command) {
+	session := b.session(sessionID)
+	msg, err := command.ToWSMessage()
+	if err != nil {
+		log.Errorf("gateway: command to message fail: %v", err)
+		return
+	}
+	session.SendMessage(msg)
+}
+
 func (b *Bucket) count() int {
 	length := 0
 	b.sessions.Range(func(_, _ interface{}) bool {
@@ -110,6 +131,8 @@ func (b *Bucket) doJob() {
 		select {
 		case job = <-b.jobChan:
 			switch job.OP {
+			case OP_PUSH:
+				b.push(job.SessionID, job.Command)
 			case OP_PUSH_ALL:
 				b.pushAll(job.Command)
 			case OP_PUSH_ROOM:

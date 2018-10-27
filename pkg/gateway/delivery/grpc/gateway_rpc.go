@@ -2,25 +2,41 @@ package grpc
 
 import (
 	"context"
+	"encoding/json"
+
+	"github.com/jasonsoft/wakanda/pkg/gateway"
 
 	gatewayProto "github.com/jasonsoft/wakanda/pkg/gateway/proto"
 )
 
 type GatewayServer struct {
-	gatewayClient gatewayProto.GatewayServiceClient
+	manager *gateway.Manager
 }
 
-func NewGatewayServer(gatewayClient gatewayProto.GatewayServiceClient) *GatewayServer {
+func NewGatewayServer(manager *gateway.Manager) *GatewayServer {
 	return &GatewayServer{
-		gatewayClient: gatewayClient,
+		manager: manager,
 	}
 }
 
-func (s *GatewayServer) SendCommand(ctx context.Context, in *gatewayProto.SendCommandRequest) (*gatewayProto.EmptyReply, error) {
+func (s *GatewayServer) SendJobs(ctx context.Context, in *gatewayProto.SendJobRequest) (*gatewayProto.EmptyReply, error) {
 
-	for _, command := range in.Commands {
-		command.
+	for _, rpcJob := range in.Jobs {
+		command := &gateway.Command{}
+		err := json.Unmarshal(rpcJob.Data, command)
+		if err != nil {
+			continue
+		}
+
+		switch rpcJob.Type {
+		case "S":
+			s.SendCommandToSession(context.Background(), rpcJob.TargetID, command)
+		}
 	}
 
 	return nil, nil
+}
+
+func (s *GatewayServer) SendCommandToSession(ctx context.Context, sessionID string, command *gateway.Command) {
+	s.manager.Push(sessionID, command)
 }

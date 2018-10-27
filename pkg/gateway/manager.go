@@ -53,10 +53,11 @@ func (m *Manager) LeaveRoom(roomID string, session *WSSession) {
 	bucket.leaveRoom(roomID, session)
 }
 
-func (m *Manager) Push(command *Command) {
+func (m *Manager) Push(sessionID string, command *Command) {
 	job := Job{
-		OP:      OP_PUSH_ALL,
-		Command: command,
+		SessionID: sessionID,
+		OP:        OP_PUSH,
+		Command:   command,
 	}
 	for _, bucket := range m.buckets {
 		bucket.jobChan <- job
@@ -75,6 +76,7 @@ func (m *Manager) PushAll(command *Command) {
 
 func (m *Manager) PushRoom(roomID string, command *Command) {
 	job := Job{
+		RoomID:  roomID,
 		OP:      OP_PUSH_ROOM,
 		Command: command,
 	}

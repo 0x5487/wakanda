@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+
+package proto;
+
+message RouteRequest {
+  repeated string MemberID = 1;
+}
+
+message RouteReply {
+  string SessionID = 1;
+  string MemberID = 2;
+  string Server = 3;
+}
+
+message DeleteSessionRequest {
+  string SessionID = 1;
+}
+
+
+message CreateOrUpdateRouteRequest {
+  string SessionID = 1;
+  string MemberID = 2;
+  string TargetServerAddr = 3;
+}
+
+
+message EmptyRequest {}
+
+message EmptyReply {}
+
+service RouterService {
+  rpc Routes (RouteRequest) returns (RouteReply) {}
+  rpc CreateOrUpdateRoute (CreateOrUpdateRouteRequest) returns (EmptyReply) {}
+  rpc DeleteSession (DeleteSessionRequest) returns (EmptyReply) {}
+}

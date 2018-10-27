@@ -28,21 +28,25 @@ const (
 )
 
 type WSSession struct {
-	ID      string
-	member  *types.Member
-	socket  *websocket.Conn
-	rooms   sync.Map
-	inChan  chan *WSMessage
-	outChan chan *WSMessage
+	manager          *Manager
+	dispatcherClient proto.DispatcherClient
+	ID               string
+	member           *types.Member
+	socket           *websocket.Conn
+	rooms            sync.Map
+	inChan           chan *WSMessage
+	outChan          chan *WSMessage
 }
 
-func NewWSSession(id string, member *types.Member, conn *websocket.Conn) *WSSession {
+func NewWSSession(id string, member *types.Member, conn *websocket.Conn, manager *Manager, dispatcherClient proto.DispatcherClient) *WSSession {
 	return &WSSession{
-		ID:      id,
-		member:  member,
-		socket:  conn,
-		inChan:  make(chan *WSMessage, 1024),
-		outChan: make(chan *WSMessage, 1024),
+		manager:          manager,
+		dispatcherClient: dispatcherClient,
+		ID:               id,
+		member:           member,
+		socket:           conn,
+		inChan:           make(chan *WSMessage, 1024),
+		outChan:          make(chan *WSMessage, 1024),
 	}
 }
 
@@ -127,7 +131,7 @@ func (s *WSSession) SendMessage(msg *WSMessage) {
 
 func (s *WSSession) Close() {
 	s.socket.Close()
-	_manager.DeleteSession(s)
+	s.manager.DeleteSession(s)
 	log.Debugf("gateway: session was closed")
 }
 
@@ -136,7 +140,7 @@ func (s *WSSession) StartTasks() {
 		s.Close()
 	}()
 
-	_manager.AddSession(s)
+	s.manager.AddSession(s)
 
 	go s.readLoop()
 	go s.writeLoop()
@@ -189,7 +193,7 @@ func (s *WSSession) StartTasks() {
 
 			md := metadata.Pairs("req_id", commandReq.RequestID)
 			ctx := metadata.NewOutgoingContext(context.Background(), md)
-			handleCommandReply, err := _dispatcherClient.HandleCommand(ctx, &in)
+			handleCommandReply, err := s.dispatcherClient.HandleCommand(ctx, &in)
 			if err != nil {
 				log.Errorf("gateway: command error from dispatcher server: %v", err)
 				continue

@@ -19,7 +19,7 @@ func (s *WSSession) handleJoin(commandReq *Command) (*Command, error) {
 		return nil, err
 	}
 
-	_manager.JoinRoom(joinData.RoomID, s)
+	s.manager.JoinRoom(joinData.RoomID, s)
 	return nil, nil
 }
 
@@ -36,7 +36,7 @@ func (s *WSSession) handleLeave(commandReq *Command) (*Command, error) {
 		return nil, err
 	}
 
-	_manager.LeaveRoom(leaveData.RoomID, s)
+	s.manager.LeaveRoom(leaveData.RoomID, s)
 	return nil, nil
 }
 
@@ -61,6 +61,6 @@ func (s *WSSession) handlePushAll(commandReq *Command) (*Command, error) {
 		Data: data,
 	}
 
-	_manager.PushAll(commandResp)
+	s.manager.PushAll(commandResp)
 	return nil, nil
 }

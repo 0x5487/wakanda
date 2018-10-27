@@ -3,14 +3,14 @@ syntax = "proto3";
 
 package proto;
 
-message SendCommandRequest {
-  repeated Command Commands = 1;
+message SendJobRequest {
+  repeated Job Jobs = 1;
 }
 
-message Command {
+message Job {
     string Type = 1;
     string TargetID = 2;
-    bytes Data = 3;
+    bytes Data = 3; // json gateway command
 }
 
 message EmptyRequest {}
@@ -19,5 +19,5 @@ message EmptyReply {}
 
 // The gateway service definition.
 service GatewayService {
-  rpc SendCommand (SendCommandRequest) returns (EmptyReply) {}
+  rpc SendJobs (SendJobRequest) returns (EmptyReply) {}
 }

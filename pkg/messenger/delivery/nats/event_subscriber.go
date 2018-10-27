@@ -10,7 +10,8 @@ import (
 )
 
 type EventSubscriber struct {
-	natsConn stan.Conn
+	natsConn    stan.Conn
+	deliverySvc messenger.DeliveryServicer
 }
 
 func NewEventSubscriber(natsConn stan.Conn) *EventSubscriber {
@@ -21,11 +22,18 @@ func NewEventSubscriber(natsConn stan.Conn) *EventSubscriber {
 
 func (evt *EventSubscriber) SubscribeDeliverySubject(ctx context.Context) {
 	evt.natsConn.QueueSubscribe("delivery", "worker1", func(m *stan.Msg) {
-		log.Debugf("Received a message: %s\n ", string(m.Data))
+		log.Debugf("delivery: received a message: %s", string(m.Data))
 
 		messages := []*messenger.Message{}
-		if err := json.Unmarshal(m.Data, &messages); err != nil {
+		err := json.Unmarshal(m.Data, &messages)
+		if err != nil {
 			log.Errorf("delivery: receive message failed: %v", err)
+			return
+		}
+
+		err = evt.deliverySvc.DeliveryMessage(ctx, messages)
+		if err != nil {
+			return
 		}
 
 		m.Ack()

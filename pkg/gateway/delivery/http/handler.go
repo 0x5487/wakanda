@@ -3,14 +3,13 @@ package http
 import (
 	"net/http"
 
-	"github.com/jasonsoft/log"
-	"github.com/satori/go.uuid"
-
-	"github.com/jasonsoft/wakanda/internal/types"
-	"github.com/jasonsoft/wakanda/pkg/gateway"
-
 	"github.com/gorilla/websocket"
+	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/napnap"
+	"github.com/jasonsoft/wakanda/internal/types"
+	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
+	"github.com/jasonsoft/wakanda/pkg/gateway"
+	"github.com/satori/go.uuid"
 )
 
 var (
@@ -23,16 +22,25 @@ var (
 	}
 )
 
-func NewGatewayRouter() *napnap.Router {
+func NewGatewayRouter(h *GatewayHttpHandler) *napnap.Router {
 	router := napnap.NewRouter()
-	router.Get("/ws", wsEndpoint)
+	router.Get("/ws", h.wsEndpoint)
 	return router
 }
 
-type GatewayHandler struct {
+type GatewayHttpHandler struct {
+	manager          *gateway.Manager
+	dispatcherClient proto.DispatcherClient
 }
 
-func wsEndpoint(c *napnap.Context) {
+func NewGatewayHttpHandler(manager *gateway.Manager, dispatcherClient proto.DispatcherClient) *GatewayHttpHandler {
+	return &GatewayHttpHandler{
+		manager:          manager,
+		dispatcherClient: dispatcherClient,
+	}
+}
+
+func (h *GatewayHttpHandler) wsEndpoint(c *napnap.Context) {
 	defer func() {
 		log.Debug("gateway: ws socket endpoint end")
 	}()
@@ -44,6 +52,6 @@ func wsEndpoint(c *napnap.Context) {
 	}
 
 	sessionID := uuid.NewV4().String()
-	wsSession := gateway.NewWSSession(sessionID, member, conn)
+	wsSession := gateway.NewWSSession(sessionID, member, conn, h.manager, h.dispatcherClient)
 	wsSession.StartTasks()
 }

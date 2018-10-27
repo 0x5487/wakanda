@@ -9,12 +9,10 @@ import (
 )
 
 var (
-	_manager          *Manager
 	_dispatcherClient proto.DispatcherClient
 )
 
 func Initialize(config *config.Configuration) {
-	_manager = NewManager()
 
 	// Set up a connection to the server.
 	var opts []grpc.DialOption
