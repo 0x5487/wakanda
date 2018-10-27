@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-
 package proto;
 
 // The request message containing the user's name.

@@ -27,6 +27,11 @@ type Configuration struct {
 		Type     string
 		DBName   string
 	}
+	Redis struct {
+		Address  string
+		Password string
+		DB       int
+	}
 	Nats struct {
 		ClusterID string `yaml:"cluster_id"`
 		Username  string
@@ -44,6 +49,9 @@ type Configuration struct {
 	Gateway struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`
 		Bind          string
+	}
+	Router struct {
+		GRPCBind string `yaml:"grpc_bind"`
 	}
 }
 

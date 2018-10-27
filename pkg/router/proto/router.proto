@@ -1,16 +1,23 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 
 package proto;
 
+message Route {
+  string SessionID = 1;
+  string MemberID = 2;
+  string GatewayAddr = 3;
+  google.protobuf.Timestamp Lastseen = 4; 
+}
+
 message RouteRequest {
-  repeated string MemberID = 1;
+  repeated string MemberIDs = 1;
 }
 
 message RouteReply {
-  string SessionID = 1;
-  string MemberID = 2;
-  string Server = 3;
+  repeated Route Routes = 1;
 }
 
 message DeleteSessionRequest {
@@ -21,7 +28,7 @@ message DeleteSessionRequest {
 message CreateOrUpdateRouteRequest {
   string SessionID = 1;
   string MemberID = 2;
-  string TargetServerAddr = 3;
+  string GatewayAddr = 3;
 }
 
 

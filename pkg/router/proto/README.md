@@ -1,1 +1,2 @@
-protoc pkg/router/proto/router.proto --go_out=plugins=grpc:.
+cd /pkg/router/proto
+protoc -I ./ router.proto --go_out=plugins=grpc:.
