@@ -143,7 +143,7 @@ func (s *WSSession) Close() {
 func (s *WSSession) refreshRouter() {
 	timer := time.NewTicker(time.Duration(5) * time.Second)
 	log.Debug("gateway: refreshRouter starting")
-	
+
 	for range timer.C {
 		in := &routerProto.CreateOrUpdateRouteRequest{
 			SessionID:   s.ID,

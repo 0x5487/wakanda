@@ -38,12 +38,15 @@ func initialize(config *config.Configuration) error {
 		return err
 	}
 
+	// repository
 	contactRepo := messengerCockroachdb.NewContactRepo(dbx)
 	groupRepo := messengerCockroachdb.NewGroupRepo(dbx)
+	groupMemberRepo := messengerCockroachdb.NewGroupMemberRepo(dbx)
 	conversationRepo := messengerCockroachdb.NewConversationRepo(dbx)
 	messageRepo := messengerCockroachdb.NewMessageRepo(dbx)
 
-	contactSvc := messengerSvc.NewContactService(contactRepo, groupRepo, conversationRepo)
+	// services
+	contactSvc := messengerSvc.NewContactService(contactRepo, groupRepo, groupMemberRepo, conversationRepo)
 	groupSvc := messengerSvc.NewGroupService(groupRepo)
 	conversationSvc := messengerSvc.NewConverstationService(conversationRepo)
 	messageSvc := messengerSvc.NewMessageService(messageRepo, groupRepo)
@@ -62,7 +65,8 @@ func initialize(config *config.Configuration) error {
 
 func setupNatsConn(config *config.Configuration) (stan.Conn, error) {
 	hostname, _ := os.Hostname()
-	natsConn, err := stan.Connect(config.Nats.ClusterID, hostname, stan.NatsURL("nats://"+config.Nats.Address))
+	clientID := "messenger-" + hostname
+	natsConn, err := stan.Connect(config.Nats.ClusterID, clientID, stan.NatsURL("nats://"+config.Nats.Address))
 	if err != nil {
 		return nil, err
 	}

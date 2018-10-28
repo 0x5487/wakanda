@@ -14,11 +14,14 @@ type MessageService struct {
 }
 
 func NewMessageService(messageRepo messenger.MessageRepository, groupRepo messenger.GroupRepository) *MessageService {
-	return &MessageService{
+	svc := &MessageService{
 		messageRepo: messageRepo,
 		groupRepo:   groupRepo,
 		messageChan: make(chan *messenger.Message, 5000),
 	}
+
+	go svc.startTasks()
+	return svc
 }
 
 func (svc *MessageService) startTasks() {
@@ -43,20 +46,23 @@ func (svc *MessageService) Messages(ctx context.Context, opts *messenger.FindMes
 }
 
 func (svc *MessageService) CreateMessage(ctx context.Context, msg *messenger.Message) error {
-	// ensure the message's timestamp is valid.
 	nowUTC := time.Now().UTC()
-	if msg.CreatedAt.Before(nowUTC.AddDate(0, 0, -3)) {
-		return messenger.ErrMessageInvalid
-	}
-	if msg.CreatedAt.After(nowUTC) {
-		msg.CreatedAt = &nowUTC
-	}
+	msg.CreatedAt = &nowUTC
 	msg.UpdatedAt = &nowUTC
 
+	// ensure the message's timestamp is valid.
+	// if msg.CreatedAt.Before(nowUTC.AddDate(0, 0, -3)) {
+	// 	return messenger.ErrMessageInvalid
+	// }
+	// if msg.CreatedAt.After(nowUTC) {
+	// 	msg.CreatedAt = &nowUTC
+	// }
+	// msg.UpdatedAt = &nowUTC
+
 	// ensure the member in the group
-	if svc.groupRepo.IsMemberInGroup(ctx, msg.SenderID, msg.GroupID) == false {
-		return messenger.ErrMessageInvalid
-	}
+	// if svc.groupRepo.IsMemberInGroup(ctx, msg.SenderID, msg.GroupID) == false {
+	// 	return messenger.ErrMessageInvalid
+	// }
 
 	// if group type is p2p, ensure friendship is available
 

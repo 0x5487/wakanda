@@ -9,11 +9,15 @@ import (
 )
 
 type GroupService struct {
-	groupRepo messenger.GroupRepository
+	groupRepo       messenger.GroupRepository
+	groupMemberRepo messenger.GroupMemberRepository
 }
 
-func NewGroupService(groupRepo messenger.GroupRepository) *GroupService {
-	return &GroupService{}
+func NewGroupService(groupRepo messenger.GroupRepository, groupMemberRepo messenger.GroupMemberRepository) *GroupService {
+	return &GroupService{
+		groupRepo:       groupRepo,
+		groupMemberRepo: groupMemberRepo,
+	}
 }
 
 func (svc *GroupService) Groups(ctx context.Context, opts *messenger.FindGroupOptions) ([]*messenger.Group, error) {
@@ -44,7 +48,7 @@ func (svc *GroupService) AddGroupMember(ctx context.Context, groupID string, mem
 }
 
 func (svc *GroupService) GroupMembers(ctx context.Context, opts *messenger.FindGroupMemberOptions) ([]*messenger.GroupMember, error) {
-	panic("not implemented")
+	return svc.groupMemberRepo.GroupMembers(ctx, opts)
 }
 
 func (svc *GroupService) SetAdmin(ctx context.Context, groupID string, memberID string) error {

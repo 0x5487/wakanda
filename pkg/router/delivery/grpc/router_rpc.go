@@ -26,14 +26,23 @@ func NewRouterServer(redisClient *redis.Client) *RouterServer {
 }
 
 func (s *RouterServer) Routes(ctx context.Context, in *proto.RouteRequest) (*proto.RouteReply, error) {
+	log.Debug("router: === Begin Routes ===")
 
 	result := proto.RouteReply{}
 
 	for _, memberID := range in.MemberIDs {
 		// get member key
 		memberKey := "m:" + memberID
+		log.Debugf("router: memberKey: %s", memberKey)
+
 		sessionIDs, err := s.redisClient.SMembers(memberKey).Result()
 		if err != nil {
+			log.Errorf("router: redis SMembers command failed: %v", err)
+			continue
+		}
+
+		if len(sessionIDs) == 0 {
+			log.Debugf("router: no session id was found by memberKey: %s", memberKey)
 			continue
 		}
 
@@ -41,6 +50,7 @@ func (s *RouterServer) Routes(ctx context.Context, in *proto.RouteRequest) (*pro
 			sessionKey := "s:" + sessionID
 			routeinfo, err := s.redisClient.HGetAll(sessionKey).Result()
 			if err != nil {
+				log.Errorf("router: redis HGetAll command failed: %v", err)
 				continue
 			}
 
@@ -53,12 +63,14 @@ func (s *RouterServer) Routes(ctx context.Context, in *proto.RouteRequest) (*pro
 		}
 	}
 
+	log.Infof("router: number of routes: %d", len(result.Routes))
+
 	return &result, nil
 
 }
 
 func (s *RouterServer) CreateOrUpdateRoute(ctx context.Context, in *proto.CreateOrUpdateRouteRequest) (*proto.EmptyReply, error) {
-	log.Debug("router: === Begin CreateOrUpdateRoute ===")
+	//log.Debug("router: === Begin CreateOrUpdateRoute ===")
 
 	// create session key
 	m := map[string]interface{}{
@@ -82,7 +94,7 @@ func (s *RouterServer) CreateOrUpdateRoute(ctx context.Context, in *proto.Create
 		return nil, err
 	}
 
-	log.Debug("router: === End CreateOrUpdateRoute ===")
+	//log.Debug("router: === End CreateOrUpdateRoute ===")
 	return _emptyReply, nil
 }
 

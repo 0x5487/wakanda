@@ -29,17 +29,17 @@ const (
 )
 
 type Message struct {
-	ID              string
-	RequestID       string
-	GroupID         string
-	SenderID        string
-	SenderFirstName string
-	SenderLastName  string
-	Type            MessageType
-	Content         string
-	State           MessageState
-	CreatedAt       *time.Time
-	UpdatedAt       *time.Time
+	ID              string       `json:"id" db:"id"`
+	RequestID       string       `json:"request_id" db:"request_id"`
+	GroupID         string       `json:"group_id" db:"group_id"`
+	SenderID        string       `json:"sender_id" db:"sender_id"`
+	SenderFirstName string       `json:"sender_first_name" db:"sender_first_name"`
+	SenderLastName  string       `json:"sender_last_name" db:"sender_last_name"`
+	Type            MessageType  `json:"type" db:"type"`
+	Content         string       `json:"content" db:"content"`
+	State           MessageState `json:"state" db:"state"`
+	CreatedAt       *time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt       *time.Time   `json:"updated_at" db:"updated_at"`
 }
 
 type FindMessagesOptions struct {

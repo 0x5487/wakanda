@@ -16,13 +16,15 @@ import (
 type ContactService struct {
 	contactRepo      messenger.ContactRepository
 	groupRepo        messenger.GroupRepository
+	groupMemberRepo  messenger.GroupMemberRepository
 	conversationRepo messenger.ConversationRepository
 }
 
-func NewContactService(contactRepo messenger.ContactRepository, groupRepo messenger.GroupRepository, conversationRepo messenger.ConversationRepository) *ContactService {
+func NewContactService(contactRepo messenger.ContactRepository, groupRepo messenger.GroupRepository, groupMemberRepo messenger.GroupMemberRepository, conversationRepo messenger.ConversationRepository) *ContactService {
 	return &ContactService{
 		contactRepo:      contactRepo,
 		groupRepo:        groupRepo,
+		groupMemberRepo:  groupMemberRepo,
 		conversationRepo: conversationRepo,
 	}
 }
@@ -65,6 +67,7 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 			return err
 		}
 
+		// create group
 		group := &messenger.Group{
 			ID:             contact.GroupID,
 			Type:           messenger.GroupTypeP2P,
@@ -79,6 +82,17 @@ func (svc *ContactService) AddContact(ctx context.Context, memberID, friendID st
 			return err
 		}
 
+		// add members to group
+		groupMember1 := &messenger.GroupMember{GroupID: group.ID, MemberID: memberID}
+		groupMember2 := &messenger.GroupMember{GroupID: group.ID, MemberID: friendID}
+		groupMembers := []*messenger.GroupMember{}
+		groupMembers = append(groupMembers, groupMember1, groupMember2)
+		err = svc.groupMemberRepo.BatchInsertTx(ctx, groupMembers, tx)
+		if err != nil {
+			return err
+		}
+
+		// create conversions
 		memberIDs := []string{memberID, friendID}
 		for _, memberID := range memberIDs {
 			conversation := &messenger.Conversation{

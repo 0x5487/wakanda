@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/jasonsoft/wakanda/pkg/gateway"
+
 	"github.com/jasonsoft/log"
 	gatewayProto "github.com/jasonsoft/wakanda/pkg/gateway/proto"
 	"github.com/jasonsoft/wakanda/pkg/messenger"
@@ -65,6 +67,17 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 		}
 
 		if len(routeReply.Routes) == 0 {
+			log.Debug("delivery: no routes was found")
+			return
+		}
+
+		command := &gateway.Command{
+			OP:   "MSG",
+			Data: m.Data,
+		}
+		commandBytes, err := json.Marshal(command)
+		if err != nil {
+			log.Errorf("delivery: json marshal command failed: %v", err)
 			return
 		}
 
@@ -73,7 +86,7 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 			job := &gatewayProto.Job{
 				Type:     "S",
 				TargetID: route.SessionID,
-				Data:     m.Data,
+				Data:     commandBytes,
 			}
 			jobReq.Jobs = append(jobReq.Jobs, job)
 		}
@@ -83,6 +96,7 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 			log.Errorf("delivery: get send jobs failed: %v", err)
 			return
 		}
+		log.Debug("delivery: jobs send to gateway")
 	}, stan.SetManualAckMode(), stan.DurableName("delivery-remember"))
 	log.Info("delivery: delivery subject was subscribed")
 }

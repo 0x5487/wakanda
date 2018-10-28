@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cenk/backoff"
@@ -10,7 +9,6 @@ import (
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
 	"github.com/jasonsoft/wakanda/internal/config"
-	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -21,7 +19,6 @@ func initialize(config *config.Configuration) {
 	initLogger("router", config)
 
 	_redisClient = setUpRedis(config)
-
 }
 
 func initLogger(appID string, config *config.Configuration) {
@@ -40,8 +37,6 @@ func initLogger(appID string, config *config.Configuration) {
 		}
 	}
 }
-
-
 
 func setUpRedis(config *config.Configuration) *redis.Client {
 	var client *redis.Client

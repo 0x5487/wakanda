@@ -42,19 +42,23 @@ func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessa
 	}
 	logger := log.WithFields(customFields)
 
-	content := ""
-	err := json.Unmarshal(in.Data, &content)
+	msg := &messenger.Message{}
+	err := json.Unmarshal(in.Data, msg)
 	if err != nil {
 		return nil, err
 	}
-	logger.Debugf("messenger: MSG data: %s", content)
+	logger.Debugf("messenger: MSG data: %s", msg.Content)
+	msg.RequestID = reqID
 
-	msg := &messenger.Message{
-		RequestID: reqID,
+	err = s.messageSvc.CreateMessage(ctx, msg)
+	if err != nil {
+		return nil, err
 	}
-	s.messageSvc.CreateMessage(ctx, msg)
 
-	s.messagePub.PublishToDeliveryChannel(msg)
+	err = s.messagePub.PublishToDeliveryChannel(msg)
+	if err != nil {
+		return nil, err
+	}
 
 	return _emptyReply, nil
 }

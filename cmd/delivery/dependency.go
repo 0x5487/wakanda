@@ -38,7 +38,8 @@ func initialize(config *config.Configuration) error {
 	}
 
 	groupRepo := messengerCockroachdb.NewGroupRepo(dbx)
-	groupSvc := messengerSvc.NewGroupService(groupRepo)
+	groupMemberRepo := messengerCockroachdb.NewGroupMemberRepo(dbx)
+	groupSvc := messengerSvc.NewGroupService(groupRepo, groupMemberRepo)
 
 	// setup router client
 	var opts []grpc.DialOption
@@ -83,7 +84,8 @@ func initLogger(appID string, config *config.Configuration) {
 
 func setupNatsConn(config *config.Configuration) (stan.Conn, error) {
 	hostname, _ := os.Hostname()
-	natsConn, err := stan.Connect(config.Nats.ClusterID, hostname, stan.NatsURL("nats://"+config.Nats.Address))
+	clientID := "delivery-" + hostname
+	natsConn, err := stan.Connect(config.Nats.ClusterID, clientID, stan.NatsURL("nats://"+config.Nats.Address))
 	if err != nil {
 		return nil, err
 	}

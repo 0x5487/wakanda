@@ -26,7 +26,6 @@ func main() {
 
 	config := config.New("app.yml")
 	err := initialize(config)
-
 	if err != nil {
 		panic(err)
 	}

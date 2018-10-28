@@ -107,6 +107,13 @@ func (b *Bucket) session(sessionID string) *WSSession {
 
 func (b *Bucket) push(sessionID string, command *Command) {
 	session := b.session(sessionID)
+	if session == nil {
+		// session was close or not exist
+		log.Debugf("gateway: session_id: %s doesn't exist", sessionID)
+		return
+	} else {
+		log.Debugf("gateway: session_id: %s was found", sessionID)
+	}
 	msg, err := command.ToWSMessage()
 	if err != nil {
 		log.Errorf("gateway: command to message fail: %v", err)

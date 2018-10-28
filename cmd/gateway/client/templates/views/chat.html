@@ -11,7 +11,7 @@
 
 
         window.addEventListener("load", function(evt) {
-            var output = document.getElementById("output");
+            var output = document.getElementById("lblOutput");
             var input = document.getElementById("input");
             var ws;
             var print = function(message) {
@@ -46,6 +46,12 @@
                 ws.close(1000, "close");
                 return false;
             };
+            document.getElementById("clear").onclick = function(evt) {
+                while (output.firstChild) {
+                    output.removeChild(output.firstChild);
+                }
+                return false;
+            };
             document.getElementById("join").onclick = function(evt) {
                 if (!ws) {
                     return false;
@@ -68,18 +74,23 @@
                 if (!ws) {
                     return false;
                 }
-                msg = document.querySelector("#txtMsg");
-                print("PUSHALL: " + msg.value);
-                ws.send(JSON.stringify({op: "PUSHALL", data: msg.value}));
+                content = document.querySelector("#txtContent").value;
+                print("PUSHALL: " + content.value);
+                ws.send(JSON.stringify({op: "PUSHALL", data: content.value}));
                 return false;
             };
             document.getElementById("msg").onclick = function(evt) {
                 if (!ws) {
                     return false;
                 }
-                msg = document.querySelector("#txtMsg");
-                print("MSG: " + msg.value);
-                ws.send(JSON.stringify({req_id: uuidv4(), op: "MSG", data: msg.value}));
+                content = document.querySelector("#txtContent").value;
+                var msg = {
+                    group_id: "2f592803-5866-474f-a688-a4fa5a58dda9",
+                    type: 2,
+                    content: content
+                }
+                print("MSG: " + msg.content);
+                ws.send(JSON.stringify({req_id: uuidv4(), op: "MSG", data: msg}));
                 return false;
             };
         });
@@ -92,6 +103,7 @@
         <p>
             <button id="open">Open</button>
             <button id="close">Close</button>
+            <button id="clear">Clear</button>
         </p>
         <p>
             <input id="txtRoomID" type="text" value="ROA">
@@ -99,13 +111,13 @@
             <button id="leave">LEAVE</button><br/>
         </p>
         <p>
-            <input text="textarea" id="txtMsg" value="hello"/>
+            <input text="textarea" id="txtContent" value="hello world"/>
             <button id="pushall">PUSHALL</button>
             <button id="msg">MSG</button>
         </p>
         </form>
     </td><td valign="top" width="50%">
-        <div id="output"></div>
+        <div id="lblOutput"></div>
     </td></tr></table>
 </body>
 </html>

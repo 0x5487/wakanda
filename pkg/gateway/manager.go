@@ -60,14 +60,8 @@ func (m *Manager) LeaveRoom(roomID string, session *WSSession) {
 }
 
 func (m *Manager) Push(sessionID string, command *Command) {
-	job := Job{
-		SessionID: sessionID,
-		OP:        OP_PUSH,
-		Command:   command,
-	}
-	for _, bucket := range m.buckets {
-		bucket.jobChan <- job
-	}
+	b := m.BucketBySessionID(sessionID)
+	b.push(sessionID, command)
 }
 
 func (m *Manager) PushAll(command *Command) {
