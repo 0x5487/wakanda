@@ -6,10 +6,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jasonsoft/wakanda/internal/identity"
+
 	"github.com/gorilla/websocket"
 	"github.com/jasonsoft/log"
-	"github.com/jasonsoft/wakanda/internal/types"
 	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
+	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -30,18 +32,21 @@ const (
 type WSSession struct {
 	manager          *Manager
 	dispatcherClient proto.DispatcherClient
-	ID               string
-	member           *types.Member
-	socket           *websocket.Conn
-	rooms            sync.Map
-	inChan           chan *WSMessage
-	outChan          chan *WSMessage
+	routerClient     routerProto.RouterServiceClient
+
+	ID      string
+	member  *identity.Member
+	socket  *websocket.Conn
+	rooms   sync.Map
+	inChan  chan *WSMessage
+	outChan chan *WSMessage
 }
 
-func NewWSSession(id string, member *types.Member, conn *websocket.Conn, manager *Manager, dispatcherClient proto.DispatcherClient) *WSSession {
+func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, manager *Manager, dispatcherClient proto.DispatcherClient, routerClient routerProto.RouterServiceClient) *WSSession {
 	return &WSSession{
 		manager:          manager,
 		dispatcherClient: dispatcherClient,
+		routerClient:     routerClient,
 		ID:               id,
 		member:           member,
 		socket:           conn,
@@ -135,6 +140,23 @@ func (s *WSSession) Close() {
 	log.Debugf("gateway: session was closed")
 }
 
+func (s *WSSession) refreshRouter() {
+	timer := time.NewTicker(time.Duration(5) * time.Second)
+	log.Debug("gateway: refreshRouter starting")
+	
+	for range timer.C {
+		in := &routerProto.CreateOrUpdateRouteRequest{
+			SessionID:   s.ID,
+			MemberID:    s.member.ID,
+			GatewayAddr: s.manager.gatewayAddr,
+		}
+		_, err := s.routerClient.CreateOrUpdateRoute(context.Background(), in)
+		if err != nil {
+			log.Warnf("gateway: refreshRouter failed: %v", err)
+		}
+	}
+}
+
 func (s *WSSession) StartTasks() {
 	defer func() {
 		s.Close()
@@ -144,6 +166,7 @@ func (s *WSSession) StartTasks() {
 
 	go s.readLoop()
 	go s.writeLoop()
+	go s.refreshRouter()
 
 	var (
 		message     *WSMessage

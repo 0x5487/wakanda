@@ -43,6 +43,7 @@ func (l *IdentityMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) 
 		ctx := NewContext(stdctx, &claim)
 		c.SetStdContext(ctx)
 	case "aa58c0a6-32e3-4621-bb43-f45754f9f3dd":
+	default:
 		stdctx := c.StdContext()
 		claim := types.Claim{
 			UserID:   "aa58c0a6-32e3-4621-bb43-f45754f9f3dd",

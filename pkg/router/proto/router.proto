@@ -1,15 +1,12 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
-
 package proto;
 
 message Route {
   string SessionID = 1;
   string MemberID = 2;
   string GatewayAddr = 3;
-  google.protobuf.Timestamp Lastseen = 4; 
+  int32 LastSeen = 4; 
 }
 
 message RouteRequest {

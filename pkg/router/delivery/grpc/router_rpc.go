@@ -2,10 +2,12 @@ package grpc
 
 import (
 	"context"
+	"time"
+
+	"github.com/jasonsoft/log"
 
 	"github.com/go-redis/redis"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/jasonsoft/wakanda/pkg/router/proto"
 )
 
@@ -56,16 +58,19 @@ func (s *RouterServer) Routes(ctx context.Context, in *proto.RouteRequest) (*pro
 }
 
 func (s *RouterServer) CreateOrUpdateRoute(ctx context.Context, in *proto.CreateOrUpdateRouteRequest) (*proto.EmptyReply, error) {
+	log.Debug("router: === Begin CreateOrUpdateRoute ===")
+
 	// create session key
 	m := map[string]interface{}{
 		"member_id":    in.GetMemberID(),
 		"gateway_addr": in.GatewayAddr,
-		"last_seen":    ptypes.TimestampNow(),
+		"last_seen":    int32(time.Now().Unix()),
 	}
 
 	sessionKey := "s:" + in.SessionID
 	_, err := s.redisClient.HMSet(sessionKey, m).Result()
 	if err != nil {
+		log.Errorf("router: redis HMSET failed: %v", err)
 		return nil, err
 	}
 
@@ -73,9 +78,11 @@ func (s *RouterServer) CreateOrUpdateRoute(ctx context.Context, in *proto.Create
 	memberKey := "m:" + in.MemberID
 	_, err = s.redisClient.SAdd(memberKey, in.SessionID).Result()
 	if err != nil {
+		log.Errorf("router: redis SADD failed: %v", err)
 		return nil, err
 	}
 
+	log.Debug("router: === End CreateOrUpdateRoute ===")
 	return _emptyReply, nil
 }
 

@@ -33,7 +33,7 @@ func main() {
 	initialize(config)
 
 	// start grpc server
-	lis, err := net.Listen("tcp", ":19998")
+	lis, err := net.Listen("tcp", config.Gateway.GRPCBind)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -49,7 +49,7 @@ func main() {
 
 	// start http service
 	nap := napWithMiddlewares()
-	httpEngine := napnap.NewHttpEngine(config.Gateway.Bind)
+	httpEngine := napnap.NewHttpEngine(config.Gateway.HTTPBind)
 	go func() {
 		log.Info("gateway: gateway service started")
 		err := nap.Run(httpEngine)

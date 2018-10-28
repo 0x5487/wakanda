@@ -25,3 +25,6 @@ dispatcher:
 messenger:
   advertise_addr: "localhost:16999"
   bind: ":16999"
+router:
+  advertise_addr: "localhost:18746"
+  grpc_bind: ":18746"
