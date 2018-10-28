@@ -2,26 +2,22 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/jasonsoft/wakanda/pkg/messenger"
-	"github.com/nats-io/go-nats-streaming"
 )
 
 type MessageService struct {
 	messageRepo messenger.MessageRepository
 	groupRepo   messenger.GroupRepository
 	messageChan chan *messenger.Message
-	natsConn    stan.Conn
 }
 
-func NewMessageService(messageRepo messenger.MessageRepository, groupRepo messenger.GroupRepository, natsConn stan.Conn) *MessageService {
+func NewMessageService(messageRepo messenger.MessageRepository, groupRepo messenger.GroupRepository) *MessageService {
 	return &MessageService{
 		messageRepo: messageRepo,
 		groupRepo:   groupRepo,
 		messageChan: make(chan *messenger.Message, 5000),
-		natsConn:    natsConn,
 	}
 }
 
@@ -38,15 +34,6 @@ func (svc *MessageService) startTasks() {
 			}
 
 			svc.messageRepo.BatchInsert(context.Background(), msgs)
-
-			// to byte
-			bytes, err := json.Marshal(msgs)
-			if err != nil {
-
-			}
-
-			// send messages to delivery subject
-			svc.natsConn.Publish("delivery", bytes)
 		}
 	}
 }

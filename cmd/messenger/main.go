@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	messengerGRPC "github.com/jasonsoft/wakanda/pkg/messenger/delivery/grpc"
 	messengerProto "github.com/jasonsoft/wakanda/pkg/messenger/proto"
 	"google.golang.org/grpc"
 
@@ -31,27 +30,29 @@ func main() {
 	}()
 
 	config := config.New("app.yml")
-	initialize(config)
+	err := initialize(config)
+	if err != nil {
+		log.Fatalf("messageer: main initialize failed: %v", err)
+	}
 
 	// start grpc server
-	lis, err := net.Listen("tcp", ":16998")
+	lis, err := net.Listen("tcp", config.Messenger.GRPCBind)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("messageer: bind grpc failed: %v", err)
 	}
 	s := grpc.NewServer()
 
-	messageServer := messengerGRPC.NewMessageServer()
-	messengerProto.RegisterMessageServiceServer(s, messageServer)
+	messengerProto.RegisterMessageServiceServer(s, _messageServer)
 	go func() {
 		log.Info("messenger: grpc service started")
 		if err = s.Serve(lis); err != nil {
-			log.Fatalf("messenger: failed to start messenger grpc server: %v", err)
+			log.Fatalf("messenger: failed to start grpc server: %v", err)
 		}
 	}()
 
 	// start http service
 	nap := napWithMiddlewares()
-	httpEngine := napnap.NewHttpEngine(config.Messenger.Bind)
+	httpEngine := napnap.NewHttpEngine(config.Messenger.HTTPBind)
 	go func() {
 		log.Info("messenger: http service started")
 		err := nap.Run(httpEngine)

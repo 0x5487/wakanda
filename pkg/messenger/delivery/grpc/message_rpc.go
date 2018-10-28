@@ -9,16 +9,23 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/jasonsoft/log"
+	messengerNats "github.com/jasonsoft/wakanda/pkg/messenger/delivery/nats"
 	"github.com/jasonsoft/wakanda/pkg/messenger/proto"
+)
+
+var (
+	_emptyReply = &proto.EmptyReply{}
 )
 
 type MessageServer struct {
 	messageSvc messenger.MessageServicer
+	messagePub *messengerNats.MessagePublisher
 }
 
-func NewMessageServer(messageservice messenger.MessageServicer) *MessageServer {
+func NewMessageServer(messageservice messenger.MessageServicer, messagePub *messengerNats.MessagePublisher) *MessageServer {
 	return &MessageServer{
 		messageSvc: messageservice,
+		messagePub: messagePub,
 	}
 }
 
@@ -47,5 +54,7 @@ func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessa
 	}
 	s.messageSvc.CreateMessage(ctx, msg)
 
-	return new(proto.EmptyReply), nil
+	s.messagePub.PublishToDeliveryChannel(msg)
+
+	return _emptyReply, nil
 }

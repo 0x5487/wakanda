@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
@@ -8,7 +10,7 @@ import (
 	"github.com/jasonsoft/wakanda/internal/config"
 	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jasonsoft/wakanda/internal/middleware"
-	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
+	dispatcherProto "github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
 	gatewayHttp "github.com/jasonsoft/wakanda/pkg/gateway/delivery/http"
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
@@ -17,24 +19,33 @@ import (
 
 var (
 	_manager          *gateway.Manager
-	_dispatcherClient proto.DispatcherClient
+	_dispatcherClient dispatcherProto.DispatcherClient
 	_routerClient     routerProto.RouterServiceClient
 )
 
 func initialize(config *config.Configuration) {
 	initLogger("gateway", config)
 
+	// setup manager
 	_manager = gateway.NewManager()
+	gatewayAddr := os.Getenv("gateway_addr")
+	if len(gatewayAddr) == 0 {
+		gatewayAddr, _ = os.Hostname()
+		gatewayAddr += ":19998"
+	}
+	_manager.SetGatewayAddr(gatewayAddr)
 
+	// setup displatcher client
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
 	conn, err := grpc.Dial(config.Dispatcher.AdvertiseAddr, opts...)
 	if err != nil {
-		log.Fatalf("gateway: can't connect to messenger grpc service: %v", err)
+		log.Fatalf("gateway: can't connect to dispatcher grpc service: %v", err)
 	}
 	log.Info("gateway: dispatcher service was connected")
-	_dispatcherClient = proto.NewDispatcherClient(conn)
+	_dispatcherClient = dispatcherProto.NewDispatcherClient(conn)
 
+	// setup router client
 	routerConn, err := grpc.Dial(config.Router.AdvertiseAddr, opts...)
 	if err != nil {
 		log.Fatalf("gateway: can't connect to router grpc service: %v", err)

@@ -16,7 +16,7 @@ func NewDeliveryService(groupMemberRepo messenger.GroupMemberRepository) *Delive
 	}
 }
 
-func (svc *DeliveryService) DeliveryMessage(ctx context.Context, msgs []*messenger.Message) error {
+func (svc *DeliveryService) DeliveryMessage(ctx context.Context, msgs *messenger.Message) error {
 	// jobRequest := gatewayProto.SendJobRequest{}
 
 	// for _, msg := range msgs {

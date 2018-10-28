@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
+
+	"github.com/nats-io/go-nats-streaming"
 
 	"github.com/cenk/backoff"
 
@@ -13,7 +16,9 @@ import (
 	"github.com/jasonsoft/wakanda/internal/config"
 	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jasonsoft/wakanda/internal/middleware"
+	messengerGRPC "github.com/jasonsoft/wakanda/pkg/messenger/delivery/grpc"
 	messengerHttp "github.com/jasonsoft/wakanda/pkg/messenger/delivery/http"
+	messengerNats "github.com/jasonsoft/wakanda/pkg/messenger/delivery/nats"
 	messengerCockroachdb "github.com/jasonsoft/wakanda/pkg/messenger/repository/cockroachdb"
 	messengerSvc "github.com/jasonsoft/wakanda/pkg/messenger/service"
 	"github.com/jmoiron/sqlx"
@@ -21,23 +26,47 @@ import (
 
 var (
 	_messengerHandler *messengerHttp.MessengerHandler
-	_dbx              *sqlx.DB
+	_messageSvc       *messengerSvc.MessageService
+	_messageServer    *messengerGRPC.MessageServer
 )
 
-func initialize(config *config.Configuration) {
+func initialize(config *config.Configuration) error {
 	initLogger("messenger", config)
-	initDatabase(config)
 
-	contactRepo := messengerCockroachdb.NewContactRepo(_dbx)
-	groupRepo := messengerCockroachdb.NewGroupRepo(_dbx)
-	conversationRepo := messengerCockroachdb.NewConversationRepo(_dbx)
+	dbx, err := setupDatabase(config)
+	if err != nil {
+		return err
+	}
+
+	contactRepo := messengerCockroachdb.NewContactRepo(dbx)
+	groupRepo := messengerCockroachdb.NewGroupRepo(dbx)
+	conversationRepo := messengerCockroachdb.NewConversationRepo(dbx)
+	messageRepo := messengerCockroachdb.NewMessageRepo(dbx)
 
 	contactSvc := messengerSvc.NewContactService(contactRepo, groupRepo, conversationRepo)
 	groupSvc := messengerSvc.NewGroupService(groupRepo)
 	conversationSvc := messengerSvc.NewConverstationService(conversationRepo)
+	messageSvc := messengerSvc.NewMessageService(messageRepo, groupRepo)
 
+	natsConn, err := setupNatsConn(config)
+	if err != nil {
+		return err
+	}
+
+	messagePub := messengerNats.NewMessagePublisher(natsConn)
+	_messageServer = messengerGRPC.NewMessageServer(messageSvc, messagePub)
 	_messengerHandler = messengerHttp.NewMessengerHandler(contactSvc, groupSvc, conversationSvc)
 
+	return nil
+}
+
+func setupNatsConn(config *config.Configuration) (stan.Conn, error) {
+	hostname, _ := os.Hostname()
+	natsConn, err := stan.Connect(config.Nats.ClusterID, hostname, stan.NatsURL("nats://"+config.Nats.Address))
+	if err != nil {
+		return nil, err
+	}
+	return natsConn, nil
 }
 
 func initLogger(appID string, config *config.Configuration) {
@@ -57,24 +86,23 @@ func initLogger(appID string, config *config.Configuration) {
 	}
 }
 
-func initDatabase(config *config.Configuration) {
+func setupDatabase(config *config.Configuration) (*sqlx.DB, error) {
 	if len(config.Database.DBName) == 0 {
-		return
+		return nil, nil
 	}
 
+	var dbx *sqlx.DB
 	var err error
-	var connectionString string
-
 	bo := backoff.NewExponentialBackOff()
 	bo.MaxElapsedTime = time.Duration(30) * time.Second
+	connectionString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=require", config.Database.Username, config.Database.Password, config.Database.Address, config.Database.DBName)
 
-	connectionString = fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=require", config.Database.Username, config.Database.Password, config.Database.Address, config.Database.DBName)
 	if err = backoff.Retry(func() error {
-		_dbx, err = sqlx.Open("postgres", connectionString)
+		dbx, err = sqlx.Open("postgres", connectionString)
 		if err != nil {
 			panic(err)
 		}
-		err = _dbx.Ping()
+		err = dbx.Ping()
 		if err != nil {
 			log.Errorf("main: cockroachdb ping error: %v", err)
 			return err
@@ -84,10 +112,11 @@ func initDatabase(config *config.Configuration) {
 		log.Panicf("cockroachdb connect timeout: %s", err.Error())
 	}
 
-	log.Infof("%s ping success", _dbx.DriverName())
-	_dbx.SetMaxIdleConns(150)
-	_dbx.SetMaxOpenConns(300)
-	_dbx.SetConnMaxLifetime(14400 * time.Second)
+	log.Infof("%s ping success", dbx.DriverName())
+	dbx.SetMaxIdleConns(150)
+	dbx.SetMaxOpenConns(300)
+	dbx.SetConnMaxLifetime(14400 * time.Second)
+	return dbx, nil
 }
 
 func napWithMiddlewares() *napnap.NapNap {

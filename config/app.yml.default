@@ -18,13 +18,15 @@ logs:
     min_level: debug
 gateway:
   advertise_addr: "localhost:19999"
-  bind: ":19999"
+  http_bind: ":19999"
+  grpc_bind: ":19998"
 dispatcher:
   advertise_addr: "localhost:18797"
-  bind: ":18797"
+  grpc_bind: ":18797"
 messenger:
   advertise_addr: "localhost:16999"
-  bind: ":16999"
+  grpc_bind: ":16998"
+  http_bind: ":16999"
 router:
   advertise_addr: "localhost:18746"
   grpc_bind: ":18746"

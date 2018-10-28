@@ -1,30 +1,55 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"time"
 
+	"github.com/cenk/backoff"
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
 	"github.com/jasonsoft/wakanda/internal/config"
+	messengerNats "github.com/jasonsoft/wakanda/pkg/messenger/delivery/nats"
+	messengerCockroachdb "github.com/jasonsoft/wakanda/pkg/messenger/repository/cockroachdb"
+	messengerSvc "github.com/jasonsoft/wakanda/pkg/messenger/service"
+	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
+	"github.com/jmoiron/sqlx"
 	"github.com/nats-io/go-nats-streaming"
+	"google.golang.org/grpc"
 )
 
 var (
-	_natsConn stan.Conn
+	deliverySub *messengerNats.DeliverySubscriber
 )
 
 func initialize(config *config.Configuration) error {
 	initLogger("delivery", config)
 
-	hostname, _ := os.Hostname()
-
-	var err error
-	_natsConn, err = stan.Connect(config.Nats.ClusterID, hostname, stan.NatsURL("nats://"+config.Nats.Address))
+	natsConn, err := setupNatsConn(config)
 	if err != nil {
 		return err
 	}
 
+	dbx, err := setupDatabase(config)
+	if err != nil {
+		return err
+	}
+
+	groupRepo := messengerCockroachdb.NewGroupRepo(dbx)
+	groupSvc := messengerSvc.NewGroupService(groupRepo)
+
+	// setup router client
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+	routerConn, err := grpc.Dial(config.Router.AdvertiseAddr, opts...)
+	if err != nil {
+		log.Fatalf("delivery: can't connect to router grpc service: %v", err)
+	}
+	log.Info("gateway: router service was connected")
+	routerClient := routerProto.NewRouterServiceClient(routerConn)
+
+	deliverySub = messengerNats.NewDeliverySubscriber(natsConn, groupSvc, routerClient)
 	return nil
 }
 
@@ -43,4 +68,46 @@ func initLogger(appID string, config *config.Configuration) {
 			log.RegisterHandler(graylog, levels...)
 		}
 	}
+}
+
+func setupNatsConn(config *config.Configuration) (stan.Conn, error) {
+	hostname, _ := os.Hostname()
+	natsConn, err := stan.Connect(config.Nats.ClusterID, hostname, stan.NatsURL("nats://"+config.Nats.Address))
+	if err != nil {
+		return nil, err
+	}
+	return natsConn, nil
+}
+
+func setupDatabase(config *config.Configuration) (*sqlx.DB, error) {
+	if len(config.Database.DBName) == 0 {
+		return nil, nil
+	}
+
+	var dbx *sqlx.DB
+	var err error
+	bo := backoff.NewExponentialBackOff()
+	bo.MaxElapsedTime = time.Duration(30) * time.Second
+	connectionString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=require", config.Database.Username, config.Database.Password, config.Database.Address, config.Database.DBName)
+
+	if err = backoff.Retry(func() error {
+		dbx, err = sqlx.Open("postgres", connectionString)
+		if err != nil {
+			panic(err)
+		}
+		err = dbx.Ping()
+		if err != nil {
+			log.Errorf("main: cockroachdb ping error: %v", err)
+			return err
+		}
+		return nil
+	}, bo); err != nil {
+		log.Panicf("cockroachdb connect timeout: %s", err.Error())
+	}
+
+	log.Infof("%s ping success", dbx.DriverName())
+	dbx.SetMaxIdleConns(150)
+	dbx.SetMaxOpenConns(300)
+	dbx.SetConnMaxLifetime(14400 * time.Second)
+	return dbx, nil
 }

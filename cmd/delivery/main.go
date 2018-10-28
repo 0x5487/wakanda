@@ -8,8 +8,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jasonsoft/wakanda/pkg/messenger/delivery/nats"
-
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/wakanda/internal/config"
 )
@@ -34,8 +32,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	subscriber := nats.NewEventSubscriber(_natsConn)
-	subscriber.SubscribeDeliverySubject(ctx)
+	deliverySub.SubscribeDeliverySubject(ctx)
 	log.Info("delivery: delivery server started")
 
 	stopChan := make(chan os.Signal, 1)
@@ -45,7 +42,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err := subscriber.Shutdown(ctx); err != nil {
+	if err := deliverySub.Shutdown(ctx); err != nil {
 		log.Errorf("delivery: service hanlder shutdown error: %v", err)
 	} else {
 		log.Info("delivery: gracefully stopped")

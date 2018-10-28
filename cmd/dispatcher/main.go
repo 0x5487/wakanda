@@ -26,7 +26,7 @@ func main() {
 	initialize(config)
 
 	// start grpc servers
-	lis, err := net.Listen("tcp", config.Dispatcher.Bind)
+	lis, err := net.Listen("tcp", config.Dispatcher.GRPCBind)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

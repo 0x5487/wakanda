@@ -40,11 +40,12 @@ type Configuration struct {
 	}
 	Dispatcher struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`
-		Bind          string
+		GRPCBind      string `yaml:"grpc_bind"`
 	}
 	Messenger struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`
-		Bind          string
+		GRPCBind      string `yaml:"grpc_bind"`
+		HTTPBind      string `yaml:"http_bind"`
 	}
 	Gateway struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`

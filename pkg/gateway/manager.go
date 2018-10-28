@@ -1,8 +1,6 @@
 package gateway
 
 import (
-	"os"
-
 	"github.com/jasonsoft/wakanda/internal/hash"
 )
 
@@ -16,16 +14,15 @@ func NewManager() *Manager {
 		buckets: make([]*Bucket, 1024),
 	}
 
-	m.gatewayAddr = os.Getenv("gateway_addr")
-	if len(m.gatewayAddr) == 0 {
-		m.gatewayAddr, _ = os.Hostname()
-	}
-
 	// inital bucket setting
 	for idx, _ := range m.buckets {
 		m.buckets[idx] = NewBucket(idx, 32)
 	}
 	return m
+}
+
+func (m *Manager) SetGatewayAddr(gatewayAddr string) {
+	m.gatewayAddr = gatewayAddr
 }
 
 func (m *Manager) BucketBySessionID(sessionID string) *Bucket {
