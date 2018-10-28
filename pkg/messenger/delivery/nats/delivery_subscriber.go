@@ -18,16 +18,21 @@ type DeliverySubscriber struct {
 	gatewayClient gatewayProto.GatewayServiceClient
 }
 
-func NewDeliverySubscriber(natsConn stan.Conn, groupSvc messenger.GroupServicer, routerClient routerProto.RouterServiceClient) *DeliverySubscriber {
+func NewDeliverySubscriber(natsConn stan.Conn, groupSvc messenger.GroupServicer, routerClient routerProto.RouterServiceClient, gatewayClient gatewayProto.GatewayServiceClient) *DeliverySubscriber {
 	return &DeliverySubscriber{
-		natsConn:     natsConn,
-		groupSvc:     groupSvc,
-		routerClient: routerClient,
+		natsConn:      natsConn,
+		groupSvc:      groupSvc,
+		routerClient:  routerClient,
+		gatewayClient: gatewayClient,
 	}
 }
 
 func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 	sub.natsConn.QueueSubscribe("delivery", "worker1", func(m *stan.Msg) {
+		defer func() {
+			m.Ack()
+		}()
+
 		log.Debugf("delivery: received a message: %s", string(m.Data))
 
 		ctx := context.Background()
@@ -63,10 +68,21 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 			return
 		}
 
-		// jobReq := gatewayProto.SendJobRequest{}
-		// sub.gatewayClient.SendJobs()
+		jobReq := &gatewayProto.SendJobRequest{}
+		for _, route := range routeReply.Routes {
+			job := &gatewayProto.Job{
+				Type:     "S",
+				TargetID: route.SessionID,
+				Data:     m.Data,
+			}
+			jobReq.Jobs = append(jobReq.Jobs, job)
+		}
 
-		m.Ack()
+		_, err = sub.gatewayClient.SendJobs(ctx, jobReq)
+		if err != nil {
+			log.Errorf("delivery: get send jobs failed: %v", err)
+			return
+		}
 	}, stan.SetManualAckMode(), stan.DurableName("delivery-remember"))
 	log.Info("delivery: delivery subject was subscribed")
 }

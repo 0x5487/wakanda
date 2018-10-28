@@ -10,6 +10,7 @@ import (
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
 	"github.com/jasonsoft/wakanda/internal/config"
+	gatewayProto "github.com/jasonsoft/wakanda/pkg/gateway/proto"
 	messengerNats "github.com/jasonsoft/wakanda/pkg/messenger/delivery/nats"
 	messengerCockroachdb "github.com/jasonsoft/wakanda/pkg/messenger/repository/cockroachdb"
 	messengerSvc "github.com/jasonsoft/wakanda/pkg/messenger/service"
@@ -42,14 +43,24 @@ func initialize(config *config.Configuration) error {
 	// setup router client
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
+
 	routerConn, err := grpc.Dial(config.Router.AdvertiseAddr, opts...)
 	if err != nil {
 		log.Fatalf("delivery: can't connect to router grpc service: %v", err)
 	}
-	log.Info("gateway: router service was connected")
+	log.Info("delivery: router service was connected")
 	routerClient := routerProto.NewRouterServiceClient(routerConn)
 
-	deliverySub = messengerNats.NewDeliverySubscriber(natsConn, groupSvc, routerClient)
+	// setup gateway client
+	gatewayConn, err := grpc.Dial(config.Gateway.AdvertiseAddr, opts...)
+	if err != nil {
+		log.Fatalf("delivery: can't connect to router grpc service: %v", err)
+	}
+	log.Info("delivery: router service was connected")
+	gatewayClient := gatewayProto.NewGatewayServiceClient(gatewayConn)
+
+	deliverySub = messengerNats.NewDeliverySubscriber(natsConn, groupSvc, routerClient, gatewayClient)
+
 	return nil
 }
 
