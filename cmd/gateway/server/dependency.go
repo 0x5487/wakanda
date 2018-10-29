@@ -19,7 +19,7 @@ import (
 
 var (
 	_manager          *gateway.Manager
-	_dispatcherClient dispatcherProto.DispatcherClient
+	_dispatcherClient dispatcherProto.DispatcherServiceClient
 	_routerClient     routerProto.RouterServiceClient
 )
 
@@ -43,7 +43,7 @@ func initialize(config *config.Configuration) {
 		log.Fatalf("gateway: can't connect to dispatcher grpc service: %v", err)
 	}
 	log.Info("gateway: dispatcher service was connected")
-	_dispatcherClient = dispatcherProto.NewDispatcherClient(conn)
+	_dispatcherClient = dispatcherProto.NewDispatcherServiceClient(conn)
 
 	// setup router client
 	routerConn, err := grpc.Dial(config.Router.AdvertiseAddr, opts...)

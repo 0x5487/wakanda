@@ -85,6 +85,7 @@
                 }
                 content = document.querySelector("#txtContent").value;
                 var msg = {
+                    seq_id: Math.round(new Date().getTime()/1000.0),
                     group_id: "2f592803-5866-474f-a688-a4fa5a58dda9",
                     type: 2,
                     content: content

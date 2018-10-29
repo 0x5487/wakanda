@@ -8,6 +8,10 @@ message CreateMessageRequest {
   bytes Data = 1;
 }
 
+message CreateMessageReply {
+  string MsgID = 1;
+  int32 MsgSeqID = 2;
+}
 
 message EmptyRequest {}
 
@@ -15,5 +19,5 @@ message EmptyReply {}
 
 
 service MessageService {
-  rpc CreateMessage (CreateMessageRequest) returns (EmptyReply) {}
+  rpc CreateMessage (CreateMessageRequest) returns (CreateMessageReply) {}
 }

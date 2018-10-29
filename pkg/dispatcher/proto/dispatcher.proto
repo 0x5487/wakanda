@@ -4,14 +4,12 @@ package proto;
 
 // The request message containing the user's name.
 message CommandRequest {
-  string ReqID = 1;
   string OP = 2;
   bytes Data = 3;
 }
 
 // The response message containing the greetings
 message CommandReply {
-  string ReqID = 1;
   string OP = 2;
   bytes Data = 3;
 }

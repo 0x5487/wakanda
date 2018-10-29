@@ -29,7 +29,7 @@ func NewMessageServer(messageservice messenger.MessageServicer, messagePub *mess
 	}
 }
 
-func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessageRequest) (*proto.EmptyReply, error) {
+func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessageRequest) (*proto.CreateMessageReply, error) {
 	reqID := ""
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
@@ -48,7 +48,6 @@ func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessa
 		return nil, err
 	}
 	logger.Debugf("messenger: MSG data: %s", msg.Content)
-	msg.RequestID = reqID
 
 	err = s.messageSvc.CreateMessage(ctx, msg)
 	if err != nil {
@@ -60,5 +59,10 @@ func (s *MessageServer) CreateMessage(ctx context.Context, in *proto.CreateMessa
 		return nil, err
 	}
 
-	return _emptyReply, nil
+	result := &proto.CreateMessageReply{
+		MsgID:    msg.ID,
+		MsgSeqID: msg.SeqID,
+	}
+
+	return result, nil
 }

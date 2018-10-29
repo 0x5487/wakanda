@@ -31,7 +31,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	dispatcherProto.RegisterDispatcherServer(s, _dispatcherServer)
+	dispatcherProto.RegisterDispatcherServiceServer(s, _dispatcherServer)
 	log.Info("dispatcher: grpc service started")
 	if err = s.Serve(lis); err != nil {
 		log.Fatalf("dispatcher: failed to start dispatcher grpc server: %v", err)

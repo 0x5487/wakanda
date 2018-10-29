@@ -29,17 +29,17 @@ const (
 )
 
 type Message struct {
-	ID              string       `json:"id" db:"id"`
-	RequestID       string       `json:"request_id" db:"request_id"`
-	GroupID         string       `json:"group_id" db:"group_id"`
-	SenderID        string       `json:"sender_id" db:"sender_id"`
-	SenderFirstName string       `json:"sender_first_name" db:"sender_first_name"`
-	SenderLastName  string       `json:"sender_last_name" db:"sender_last_name"`
-	Type            MessageType  `json:"type" db:"type"`
-	Content         string       `json:"content" db:"content"`
-	State           MessageState `json:"state" db:"state"`
-	CreatedAt       *time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt       *time.Time   `json:"updated_at" db:"updated_at"`
+	ID              string       `json:"id,omitempty" db:"id"`
+	SeqID           int32        `json:"seq_id,omitempty" db:"seq_id"`
+	Type            MessageType  `json:"type,omitempty" db:"type"`
+	GroupID         string       `json:"group_id,omitempty" db:"group_id"`
+	SenderID        string       `json:"sender_id,omitempty" db:"sender_id"`
+	SenderFirstName string       `json:"sender_first_name,omitempty" db:"sender_first_name"`
+	SenderLastName  string       `json:"sender_last_name,omitempty" db:"sender_last_name"`
+	Content         string       `json:"content,omitempty" db:"content"`
+	State           MessageState `json:"state,omitempty" db:"state"`
+	CreatedAt       *time.Time   `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt       *time.Time   `json:"updated_at,omitempty" db:"updated_at"`
 }
 
 type FindMessagesOptions struct {

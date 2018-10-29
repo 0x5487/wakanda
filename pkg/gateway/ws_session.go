@@ -10,8 +10,9 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/jasonsoft/log"
-	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
+	dispatcherProto "github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
+	"github.com/satori/go.uuid"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -31,7 +32,7 @@ const (
 
 type WSSession struct {
 	manager          *Manager
-	dispatcherClient proto.DispatcherClient
+	dispatcherClient dispatcherProto.DispatcherServiceClient
 	routerClient     routerProto.RouterServiceClient
 
 	ID      string
@@ -42,7 +43,7 @@ type WSSession struct {
 	outChan chan *WSMessage
 }
 
-func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, manager *Manager, dispatcherClient proto.DispatcherClient, routerClient routerProto.RouterServiceClient) *WSSession {
+func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient) *WSSession {
 	return &WSSession{
 		manager:          manager,
 		dispatcherClient: dispatcherClient,
@@ -208,15 +209,18 @@ func (s *WSSession) StartTasks() {
 				continue
 			}
 		default:
-			in := proto.CommandRequest{
-				ReqID: commandReq.RequestID,
-				OP:    commandReq.OP,
-				Data:  commandReq.Data,
+			in := &dispatcherProto.CommandRequest{
+				OP:   commandReq.OP,
+				Data: commandReq.Data,
 			}
 
-			md := metadata.Pairs("req_id", commandReq.RequestID)
+			md := metadata.Pairs(
+				"req_id", uuid.NewV4().String(),
+				"sender_id", s.member.ID,
+			)
 			ctx := metadata.NewOutgoingContext(context.Background(), md)
-			handleCommandReply, err := s.dispatcherClient.HandleCommand(ctx, &in)
+
+			handleCommandReply, err := s.dispatcherClient.HandleCommand(ctx, in)
 			if err != nil {
 				log.Errorf("gateway: command error from dispatcher server: %v", err)
 				continue
@@ -225,9 +229,8 @@ func (s *WSSession) StartTasks() {
 			if handleCommandReply != nil && len(handleCommandReply.OP) > 0 {
 				log.Debugf("gateway: receive command resp from server: %s", handleCommandReply.OP)
 				commandResp = &Command{
-					RequestID: handleCommandReply.ReqID,
-					OP:        handleCommandReply.OP,
-					Data:      handleCommandReply.Data,
+					OP:   handleCommandReply.OP,
+					Data: handleCommandReply.Data,
 				}
 			}
 		}

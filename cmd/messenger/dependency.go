@@ -47,7 +47,7 @@ func initialize(config *config.Configuration) error {
 
 	// services
 	contactSvc := messengerSvc.NewContactService(contactRepo, groupRepo, groupMemberRepo, conversationRepo)
-	groupSvc := messengerSvc.NewGroupService(groupRepo)
+	groupSvc := messengerSvc.NewGroupService(groupRepo, groupMemberRepo)
 	conversationSvc := messengerSvc.NewConverstationService(conversationRepo)
 	messageSvc := messengerSvc.NewMessageService(messageRepo, groupRepo)
 

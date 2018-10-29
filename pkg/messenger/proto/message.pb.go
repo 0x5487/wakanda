@@ -34,7 +34,7 @@ func (m *CreateMessageRequest) Reset()         { *m = CreateMessageRequest{} }
 func (m *CreateMessageRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateMessageRequest) ProtoMessage()    {}
 func (*CreateMessageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_0aec39f647ac6308, []int{0}
+	return fileDescriptor_message_d4993d7350bf06e4, []int{0}
 }
 func (m *CreateMessageRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateMessageRequest.Unmarshal(m, b)
@@ -61,6 +61,52 @@ func (m *CreateMessageRequest) GetData() []byte {
 	return nil
 }
 
+type CreateMessageReply struct {
+	MsgID                string   `protobuf:"bytes,1,opt,name=MsgID,proto3" json:"MsgID,omitempty"`
+	MsgSeqID             int32    `protobuf:"varint,2,opt,name=MsgSeqID,proto3" json:"MsgSeqID,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateMessageReply) Reset()         { *m = CreateMessageReply{} }
+func (m *CreateMessageReply) String() string { return proto.CompactTextString(m) }
+func (*CreateMessageReply) ProtoMessage()    {}
+func (*CreateMessageReply) Descriptor() ([]byte, []int) {
+	return fileDescriptor_message_d4993d7350bf06e4, []int{1}
+}
+func (m *CreateMessageReply) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateMessageReply.Unmarshal(m, b)
+}
+func (m *CreateMessageReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateMessageReply.Marshal(b, m, deterministic)
+}
+func (dst *CreateMessageReply) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateMessageReply.Merge(dst, src)
+}
+func (m *CreateMessageReply) XXX_Size() int {
+	return xxx_messageInfo_CreateMessageReply.Size(m)
+}
+func (m *CreateMessageReply) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateMessageReply.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateMessageReply proto.InternalMessageInfo
+
+func (m *CreateMessageReply) GetMsgID() string {
+	if m != nil {
+		return m.MsgID
+	}
+	return ""
+}
+
+func (m *CreateMessageReply) GetMsgSeqID() int32 {
+	if m != nil {
+		return m.MsgSeqID
+	}
+	return 0
+}
+
 type EmptyRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -71,7 +117,7 @@ func (m *EmptyRequest) Reset()         { *m = EmptyRequest{} }
 func (m *EmptyRequest) String() string { return proto.CompactTextString(m) }
 func (*EmptyRequest) ProtoMessage()    {}
 func (*EmptyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_0aec39f647ac6308, []int{1}
+	return fileDescriptor_message_d4993d7350bf06e4, []int{2}
 }
 func (m *EmptyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EmptyRequest.Unmarshal(m, b)
@@ -101,7 +147,7 @@ func (m *EmptyReply) Reset()         { *m = EmptyReply{} }
 func (m *EmptyReply) String() string { return proto.CompactTextString(m) }
 func (*EmptyReply) ProtoMessage()    {}
 func (*EmptyReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_0aec39f647ac6308, []int{2}
+	return fileDescriptor_message_d4993d7350bf06e4, []int{3}
 }
 func (m *EmptyReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EmptyReply.Unmarshal(m, b)
@@ -123,6 +169,7 @@ var xxx_messageInfo_EmptyReply proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*CreateMessageRequest)(nil), "proto.CreateMessageRequest")
+	proto.RegisterType((*CreateMessageReply)(nil), "proto.CreateMessageReply")
 	proto.RegisterType((*EmptyRequest)(nil), "proto.EmptyRequest")
 	proto.RegisterType((*EmptyReply)(nil), "proto.EmptyReply")
 }
@@ -139,7 +186,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MessageServiceClient interface {
-	CreateMessage(ctx context.Context, in *CreateMessageRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	CreateMessage(ctx context.Context, in *CreateMessageRequest, opts ...grpc.CallOption) (*CreateMessageReply, error)
 }
 
 type messageServiceClient struct {
@@ -150,8 +197,8 @@ func NewMessageServiceClient(cc *grpc.ClientConn) MessageServiceClient {
 	return &messageServiceClient{cc}
 }
 
-func (c *messageServiceClient) CreateMessage(ctx context.Context, in *CreateMessageRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
-	out := new(EmptyReply)
+func (c *messageServiceClient) CreateMessage(ctx context.Context, in *CreateMessageRequest, opts ...grpc.CallOption) (*CreateMessageReply, error) {
+	out := new(CreateMessageReply)
 	err := c.cc.Invoke(ctx, "/proto.MessageService/CreateMessage", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -161,7 +208,7 @@ func (c *messageServiceClient) CreateMessage(ctx context.Context, in *CreateMess
 
 // MessageServiceServer is the server API for MessageService service.
 type MessageServiceServer interface {
-	CreateMessage(context.Context, *CreateMessageRequest) (*EmptyReply, error)
+	CreateMessage(context.Context, *CreateMessageRequest) (*CreateMessageReply, error)
 }
 
 func RegisterMessageServiceServer(s *grpc.Server, srv MessageServiceServer) {
@@ -200,19 +247,22 @@ var _MessageService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("pkg/messenger/proto/message.proto", fileDescriptor_message_0aec39f647ac6308)
+	proto.RegisterFile("pkg/messenger/proto/message.proto", fileDescriptor_message_d4993d7350bf06e4)
 }
 
-var fileDescriptor_message_0aec39f647ac6308 = []byte{
-	// 152 bytes of a gzipped FileDescriptorProto
+var fileDescriptor_message_d4993d7350bf06e4 = []byte{
+	// 198 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x2c, 0xc8, 0x4e, 0xd7,
 	0xcf, 0x4d, 0x2d, 0x2e, 0x4e, 0xcd, 0x4b, 0x4f, 0x2d, 0xd2, 0x2f, 0x28, 0xca, 0x2f, 0xc9, 0x07,
 	0xf3, 0x13, 0xd3, 0x53, 0xf5, 0xc0, 0x3c, 0x21, 0x56, 0x30, 0xa5, 0xa4, 0xc5, 0x25, 0xe2, 0x5c,
 	0x94, 0x9a, 0x58, 0x92, 0xea, 0x0b, 0x91, 0x0d, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x12,
 	0xe2, 0x62, 0x71, 0x49, 0x2c, 0x49, 0x94, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x09, 0x02, 0xb3, 0x95,
-	0xf8, 0xb8, 0x78, 0x5c, 0x73, 0x0b, 0x4a, 0x2a, 0xa1, 0x6a, 0x94, 0x78, 0xb8, 0xb8, 0xa0, 0xfc,
-	0x82, 0x9c, 0x4a, 0xa3, 0x60, 0x2e, 0x3e, 0xa8, 0x19, 0xc1, 0xa9, 0x45, 0x65, 0x99, 0xc9, 0xa9,
-	0x42, 0x8e, 0x5c, 0xbc, 0x28, 0x66, 0x0b, 0x49, 0x43, 0xec, 0xd6, 0xc3, 0x66, 0xa3, 0x94, 0x20,
-	0x54, 0x12, 0x61, 0xa4, 0x12, 0x43, 0x12, 0x1b, 0x58, 0xcc, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff,
-	0xdc, 0xd6, 0xae, 0x7e, 0xd1, 0x00, 0x00, 0x00,
+	0xdc, 0xb8, 0x84, 0xd0, 0xd4, 0x16, 0xe4, 0x54, 0x0a, 0x89, 0x70, 0xb1, 0xfa, 0x16, 0xa7, 0x7b,
+	0xba, 0x80, 0x95, 0x72, 0x06, 0x41, 0x38, 0x42, 0x52, 0x5c, 0x1c, 0xbe, 0xc5, 0xe9, 0xc1, 0xa9,
+	0x85, 0x9e, 0x2e, 0x12, 0x4c, 0x0a, 0x8c, 0x1a, 0xac, 0x41, 0x70, 0xbe, 0x12, 0x1f, 0x17, 0x8f,
+	0x6b, 0x6e, 0x41, 0x49, 0x25, 0xd4, 0x2e, 0x25, 0x1e, 0x2e, 0x2e, 0x28, 0xbf, 0x20, 0xa7, 0xd2,
+	0x28, 0x9a, 0x8b, 0x0f, 0x6a, 0x7e, 0x70, 0x6a, 0x51, 0x59, 0x66, 0x72, 0xaa, 0x90, 0x27, 0x17,
+	0x2f, 0x8a, 0xbd, 0x42, 0xd2, 0x10, 0x3f, 0xe8, 0x61, 0x73, 0xb9, 0x94, 0x24, 0x76, 0xc9, 0x82,
+	0x9c, 0x4a, 0x25, 0x86, 0x24, 0x36, 0xb0, 0x9c, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0xfb, 0x70,
+	0x8a, 0x20, 0x21, 0x01, 0x00, 0x00,
 }

@@ -60,8 +60,8 @@ CREATE TABLE messenger_conversations (
 DROP TABLE IF EXISTS messenger_messages;
 CREATE TABLE messenger_messages (
     id UUID NOT NULL DEFAULT gen_random_uuid(),
+    seq_id TIMESTAMP NOT NULL DEFAULT (now()),
     group_id UUID NOT NULL,
-    req_id UUID NOT NULL,
     sender_id UUID NOT NULL,
     type INT NOT NULL,
     state INT NOT NULL, 
@@ -70,6 +70,6 @@ CREATE TABLE messenger_messages (
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (id),
     UNIQUE INDEX uniq_member (group_id, sender_id),
-    UNIQUE INDEX uniq_request (req_id, sender_id),
+    UNIQUE INDEX uniq_seq (seq_id, sender_id),
     INDEX idx_updated_at (updated_at)
 );

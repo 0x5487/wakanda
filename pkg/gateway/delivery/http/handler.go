@@ -32,11 +32,11 @@ func NewGatewayRouter(h *GatewayHttpHandler) *napnap.Router {
 
 type GatewayHttpHandler struct {
 	manager          *gateway.Manager
-	dispatcherClient proto.DispatcherClient
+	dispatcherClient proto.DispatcherServiceClient
 	routerClient     routerProto.RouterServiceClient
 }
 
-func NewGatewayHttpHandler(manager *gateway.Manager, dispatcherClient proto.DispatcherClient, routerClient routerProto.RouterServiceClient) *GatewayHttpHandler {
+func NewGatewayHttpHandler(manager *gateway.Manager, dispatcherClient proto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient) *GatewayHttpHandler {
 	return &GatewayHttpHandler{
 		manager:          manager,
 		dispatcherClient: dispatcherClient,

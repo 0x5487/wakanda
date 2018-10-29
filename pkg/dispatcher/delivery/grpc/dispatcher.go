@@ -11,12 +11,12 @@ import (
 )
 
 type DispatcherServer struct {
-	messageRPCClient messageProto.MessageServiceClient
+	messageClient messageProto.MessageServiceClient
 }
 
-func NewDispatchServer(messageRPCClient messageProto.MessageServiceClient) *DispatcherServer {
+func NewDispatchServer(messageClient messageProto.MessageServiceClient) *DispatcherServer {
 	return &DispatcherServer{
-		messageRPCClient: messageRPCClient,
+		messageClient: messageClient,
 	}
 }
 
