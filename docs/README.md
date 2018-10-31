@@ -29,3 +29,4 @@
 
 #### 訊息安全
 1. http://www.52im.net/thread-970-1-1.html
+1. https://blog.techbridge.cc/2017/04/16/simple-cryptography/
