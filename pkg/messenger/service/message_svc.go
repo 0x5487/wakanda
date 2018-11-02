@@ -50,6 +50,7 @@ func (svc *MessageService) CreateMessage(ctx context.Context, msg *messenger.Mes
 	msg.CreatedAt = &nowUTC
 	msg.UpdatedAt = &nowUTC
 
+	msg.State = messenger.MessageStateNormal
 	// ensure the message's timestamp is valid.
 	// if msg.CreatedAt.Before(nowUTC.AddDate(0, 0, -3)) {
 	// 	return messenger.ErrMessageInvalid

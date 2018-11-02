@@ -9,6 +9,7 @@ type MessengerHandler struct {
 	contactService      messenger.ContactServicer
 	groupService        messenger.GroupServicer
 	conversationService messenger.ConversationServicer
+	messageService      messenger.MessageServicer
 }
 
 func NewMessengerHandler(contactService messenger.ContactServicer, groupService messenger.GroupServicer, conversationService messenger.ConversationServicer) *MessengerHandler {

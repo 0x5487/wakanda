@@ -61,11 +61,11 @@ DROP TABLE IF EXISTS messenger_messages;
 CREATE TABLE messenger_messages (
     id UUID NOT NULL DEFAULT gen_random_uuid(),
     seq_id TIMESTAMP NOT NULL DEFAULT (now()),
+    type INT NOT NULL,
     group_id UUID NOT NULL,
     sender_id UUID NOT NULL,
-    type INT NOT NULL,
-    state INT NOT NULL, 
     content STRING(1024) NOT NULL,
+    state INT NOT NULL, 
     created_at TIMESTAMP NOT NULL DEFAULT (now()),
     updated_at TIMESTAMP NOT NULL DEFAULT (now()),
     PRIMARY KEY (id),
