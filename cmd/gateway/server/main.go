@@ -37,13 +37,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
+	gatewayGrpcServer := grpc.NewServer()
 	gatewayServer := gatewayGRPC.NewGatewayServer(_manager)
-	gatewayProto.RegisterGatewayServiceServer(s, gatewayServer)
+	gatewayProto.RegisterGatewayServiceServer(gatewayGrpcServer, gatewayServer)
 	go func() {
 		log.Info("gateway: grpc service started")
-		if err = s.Serve(lis); err != nil {
+		if err = gatewayGrpcServer.Serve(lis); err != nil {
 			log.Fatalf("gateway: failed to start gateway grpc server: %v", err)
+		}
+	}()
+
+	// start job grpc server
+	jobTcpListen, err := net.Listen("tcp", config.Gateway.JobGRPCBind)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	jobGrpcServer := grpc.NewServer()
+	jobServer := gatewayGRPC.NewJobServer(_manager)
+	gatewayProto.RegisterJobServiceServer(jobGrpcServer, jobServer)
+	go func() {
+		log.Info("gateway: job grpc service started")
+		if err = jobGrpcServer.Serve(jobTcpListen); err != nil {
+			log.Fatalf("gateway: failed to start job grpc server: %v", err)
 		}
 	}()
 
@@ -66,8 +81,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := httpEngine.Shutdown(ctx); err != nil {
-		log.Errorf("hanlder shutdown error: %v", err)
+		log.Errorf("gateway: hanlder shutdown error: %v", err)
 	} else {
-		log.Info("gracefully stopped")
+		log.Info("gateway: gracefully stopped")
 	}
 }

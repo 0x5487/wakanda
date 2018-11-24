@@ -14,18 +14,18 @@ import (
 )
 
 type DeliverySubscriber struct {
-	natsConn      stan.Conn
-	groupSvc      messenger.GroupServicer
-	routerClient  routerProto.RouterServiceClient
-	gatewayClient gatewayProto.GatewayServiceClient
+	natsConn         stan.Conn
+	groupSvc         messenger.GroupServicer
+	routerClient     routerProto.RouterServiceClient
+	gatewayJobClient gatewayProto.JobServiceClient
 }
 
-func NewDeliverySubscriber(natsConn stan.Conn, groupSvc messenger.GroupServicer, routerClient routerProto.RouterServiceClient, gatewayClient gatewayProto.GatewayServiceClient) *DeliverySubscriber {
+func NewDeliverySubscriber(natsConn stan.Conn, groupSvc messenger.GroupServicer, routerClient routerProto.RouterServiceClient, gatewayJobClient gatewayProto.JobServiceClient) *DeliverySubscriber {
 	return &DeliverySubscriber{
-		natsConn:      natsConn,
-		groupSvc:      groupSvc,
-		routerClient:  routerClient,
-		gatewayClient: gatewayClient,
+		natsConn:         natsConn,
+		groupSvc:         groupSvc,
+		routerClient:     routerClient,
+		gatewayJobClient: gatewayJobClient,
 	}
 }
 
@@ -91,9 +91,9 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 			jobReq.Jobs = append(jobReq.Jobs, job)
 		}
 
-		_, err = sub.gatewayClient.SendJobs(ctx, jobReq)
+		_, err = sub.gatewayJobClient.SendJobs(ctx, jobReq)
 		if err != nil {
-			log.Errorf("delivery: get send jobs failed: %v", err)
+			log.Errorf("delivery: send jobs failed: %v", err)
 			return
 		}
 		log.Debug("delivery: jobs send to gateway")

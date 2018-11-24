@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package proto;
+
+message SendJobRequest {
+  repeated Job Jobs = 1;
+}
+
+message Job {
+    string Type = 1;
+    string TargetID = 2;
+    bytes Data = 3; // json gateway command
+}
+
+message EmptyRequest {}
+
+message EmptyReply {}
+
+// The gateway service definition.
+service JobService {
+  rpc SendJobs (SendJobRequest) returns (EmptyReply) {}
+}
+

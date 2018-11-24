@@ -53,14 +53,13 @@ func initialize(config *config.Configuration) error {
 	routerClient := routerProto.NewRouterServiceClient(routerConn)
 
 	// setup gateway client
-	gatewayConn, err := grpc.Dial(config.Gateway.AdvertiseAddr, opts...)
+	gatewayJobConn, err := grpc.Dial(config.Gateway.AdvertiseJobAddr, opts...)
 	if err != nil {
 		log.Fatalf("delivery: can't connect to router grpc service: %v", err)
 	}
 	log.Info("delivery: router service was connected")
-	gatewayClient := gatewayProto.NewGatewayServiceClient(gatewayConn)
-
-	deliverySub = messengerNats.NewDeliverySubscriber(natsConn, groupSvc, routerClient, gatewayClient)
+	gatewayJobClient := gatewayProto.NewJobServiceClient(gatewayJobConn)
+	deliverySub = messengerNats.NewDeliverySubscriber(natsConn, groupSvc, routerClient, gatewayJobClient)
 
 	return nil
 }

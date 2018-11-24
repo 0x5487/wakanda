@@ -17,7 +17,7 @@
             var print = function(message) {
                 var d = document.createElement("div");
                 d.innerHTML = message;
-                output.appendChild(d);
+                output.insertBefore(d, output.firstChild);
             };
             document.getElementById("open").onclick = function(evt) {
                 if (ws) {

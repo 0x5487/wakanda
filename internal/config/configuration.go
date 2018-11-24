@@ -48,9 +48,11 @@ type Configuration struct {
 		HTTPBind      string `yaml:"http_bind"`
 	}
 	Gateway struct {
-		AdvertiseAddr string `yaml:"advertise_addr"`
-		GRPCBind      string `yaml:"grpc_bind"`
-		HTTPBind      string `yaml:"http_bind"`
+		AdvertiseAddr    string `yaml:"advertise_addr"`
+		AdvertiseJobAddr string `yaml:"advertise_job_addr"`
+		GRPCBind         string `yaml:"grpc_bind"`
+		JobGRPCBind      string `yaml:"job_grpc_bind"`
+		HTTPBind         string `yaml:"http_bind"`
 	}
 	Router struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`

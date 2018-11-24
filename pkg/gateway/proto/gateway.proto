@@ -1,23 +1,34 @@
 syntax = "proto3";
 
-
 package proto;
 
-message SendJobRequest {
-  repeated Job Jobs = 1;
+
+message CommandRequest {
+  string OP = 1;
+  bytes Data = 2;
 }
 
-message Job {
-    string Type = 1;
-    string TargetID = 2;
-    bytes Data = 3; // json gateway command
+message CommandReply {
+  string OP = 1;
+  bytes Data = 2;
 }
 
-message EmptyRequest {}
 
-message EmptyReply {}
+message GetServerTimeReply {
+  int64 Time = 1;
+}
 
-// The gateway service definition.
+
+message Message {
+  string ID = 1;
+  int32 SeqID = 2;
+  int32 Type = 3;
+  string GroupID = 4;
+  string Content = 5;      
+}
+
+
 service GatewayService {
-  rpc SendJobs (SendJobRequest) returns (EmptyReply) {}
+  rpc GetServerTime (Empty) returns (GetServerTimeReply) {}
+  rpc CreateCommandStream (stream CommandRequest) returns (stream CommandReply) {}
 }

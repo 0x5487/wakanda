@@ -30,6 +30,11 @@ const (
 	maxMessageSize = 2048
 )
 
+type WSMessage struct {
+	MsgType int
+	MsgData []byte
+}
+
 type WSSession struct {
 	manager          *Manager
 	dispatcherClient dispatcherProto.DispatcherServiceClient
@@ -186,6 +191,10 @@ func (s *WSSession) StartTasks() {
 		}
 
 		commandReq, err = CreateCommand(message.MsgData)
+		if err != nil {
+			log.Warn("gateway: websocket message is invalid command")
+			continue
+		}
 		commandResp = nil
 
 		// handles all commands here

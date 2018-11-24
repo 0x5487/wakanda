@@ -18,8 +18,10 @@ logs:
     min_level: debug
 gateway:
   advertise_addr: "localhost:19999"
+  advertise_job_addr: "localhost:19997"
   http_bind: ":19999"
   grpc_bind: ":19998"
+  job_grpc_bind: ":19997"
 dispatcher:
   advertise_addr: "localhost:18797"
   grpc_bind: ":18797"

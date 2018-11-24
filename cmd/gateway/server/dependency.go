@@ -27,11 +27,12 @@ func initialize(config *config.Configuration) {
 	initLogger("gateway", config)
 
 	// setup manager
+
 	_manager = gateway.NewManager()
 	gatewayAddr := os.Getenv("gateway_addr")
 	if len(gatewayAddr) == 0 {
 		gatewayAddr, _ = os.Hostname()
-		gatewayAddr += ":19998"
+		gatewayAddr += ":19997" // TODO: can't hard code here
 	}
 	_manager.SetGatewayAddr(gatewayAddr)
 
