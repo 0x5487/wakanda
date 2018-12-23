@@ -41,7 +41,7 @@ func (s *WSSession) handleLeave(commandReq *Command) (*Command, error) {
 }
 
 func (s *WSSession) handlePushAll(commandReq *Command) (*Command, error) {
-	log.Infof("gateway: push all command is handling, session id: %s", s.ID)
+	log.Infof("gateway: PUSHALL command is handling, session id: %s", s.ID)
 
 	msg := ""
 	err := json.Unmarshal(commandReq.Data, &msg)
@@ -62,5 +62,30 @@ func (s *WSSession) handlePushAll(commandReq *Command) (*Command, error) {
 	}
 
 	s.manager.PushAll(commandResp)
+	return nil, nil
+}
+
+func (s *WSSession) handleRoomPush(roomID string, commandReq *Command) (*Command, error) {
+	log.Infof("gateway: PUSHROOM command is handling, session id: %s", s.ID)
+
+	msg := ""
+	err := json.Unmarshal(commandReq.Data, &msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: filter content
+
+	data, err := json.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	commandResp := &Command{
+		OP:   "MSG",
+		Data: data,
+	}
+
+	s.manager.PushRoom(roomID, commandResp)
 	return nil, nil
 }

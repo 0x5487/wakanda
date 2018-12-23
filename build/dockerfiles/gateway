@@ -1,0 +1,30 @@
+FROM golang:latest AS builder
+RUN mkdir /chat
+WORKDIR /chat
+ENV GO111MODULE=on
+
+COPY go.mod . 
+COPY go.sum .
+
+RUN go mod download
+COPY . .
+
+WORKDIR /chat/cmd/gateway/server
+
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o gateway
+
+FROM alpine:latest
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache curl && \
+    apk add --no-cache tzdata && \
+    rm -rf /var/cache/apk/* && \
+    mkdir -p /chat
+COPY --from=builder /chat/cmd/gateway/server/gateway /chat/gateway
+RUN addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser && \
+    chown -R appuser:appuser /chat
+USER appuser
+
+WORKDIR /chat
+CMD ./gateway

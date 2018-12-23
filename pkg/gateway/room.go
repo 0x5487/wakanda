@@ -46,11 +46,12 @@ func (r *Room) push(command *Command) {
 	r.sessions.Range(func(key, value interface{}) bool {
 		session, ok = value.(*WSSession)
 		if ok {
-			msg, err := command.ToWSMessage()
-			if err != nil {
-				return true
-			}
-			session.SendMessage(msg)
+			// msg, err := command.ToWSMessage()
+			// if err != nil {
+			// 	return true
+			// }
+			session.SendCommand(command)
+			//session.SendMessage(msg)
 		}
 		return true
 	})

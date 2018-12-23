@@ -27,6 +27,7 @@ var (
 func NewGatewayRouter(h *GatewayHttpHandler) *napnap.Router {
 	router := napnap.NewRouter()
 	router.Get("/ws", h.wsEndpoint)
+	router.Get("/rooms/:room_id", h.roomEndpoint)
 	return router
 }
 
@@ -68,6 +69,41 @@ func (h *GatewayHttpHandler) wsEndpoint(c *napnap.Context) {
 	}
 
 	sessionID := uuid.NewV4().String()
-	wsSession := gateway.NewWSSession(sessionID, member, conn, h.manager, h.dispatcherClient, h.routerClient)
+	wsSession := gateway.NewWSSession(sessionID, member, conn, h.manager, h.dispatcherClient, h.routerClient, "")
+	wsSession.StartTasks()
+}
+
+type GatewayStatus struct {
+	RoomStatus map[string]int
+}
+
+func (h *GatewayHttpHandler) roomEndpoint(c *napnap.Context) {
+	ctx := c.StdContext()
+	roomID := c.Param("room_id")
+
+	defer func() {
+		log.Debug("gateway: ws socket endpoint end")
+	}()
+
+	claim, found := identity.FromContext(ctx)
+	if found == false {
+		c.SetStatus(403)
+		return
+	}
+
+	member := &identity.Member{
+		ID:   claim.UserID,
+		Name: claim.Username,
+	}
+
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	sessionID := uuid.NewV4().String()
+	wsSession := gateway.NewWSSession(sessionID, member, conn, h.manager, h.dispatcherClient, h.routerClient, roomID)
+
+	h.manager.JoinRoom(roomID, wsSession)
 	wsSession.StartTasks()
 }

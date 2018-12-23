@@ -23,8 +23,8 @@ const (
 	// Time allowed to read the next pong message from the peer.
 	readWait = 60 * time.Second
 
-	// Send pings to peer with this period. Must be less than pongWait.
-	pingPeriod = 5
+	// Send pings to peer with this period. Must be less than readWait.
+	pingPeriod = 20
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 2048
@@ -40,15 +40,17 @@ type WSSession struct {
 	dispatcherClient dispatcherProto.DispatcherServiceClient
 	routerClient     routerProto.RouterServiceClient
 
-	ID      string
-	member  *identity.Member
-	socket  *websocket.Conn
-	rooms   sync.Map
-	inChan  chan *WSMessage
-	outChan chan *WSMessage
+	ID          string
+	member      *identity.Member
+	socket      *websocket.Conn
+	rooms       sync.Map
+	roomID      string
+	inChan      chan *WSMessage
+	outChan     chan *WSMessage
+	commandChan chan *Command
 }
 
-func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient) *WSSession {
+func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient, roomID string) *WSSession {
 	return &WSSession{
 		manager:          manager,
 		dispatcherClient: dispatcherClient,
@@ -58,6 +60,8 @@ func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, mana
 		socket:           conn,
 		inChan:           make(chan *WSMessage, 1024),
 		outChan:          make(chan *WSMessage, 1024),
+		commandChan:      make(chan *Command, 1024),
+		roomID:           roomID,
 	}
 }
 
@@ -66,8 +70,8 @@ func (s *WSSession) readLoop() {
 		s.Close()
 	}()
 	s.socket.SetReadLimit(maxMessageSize)
+	//s.socket.SetReadDeadline(time.Now().Add(readWait))
 	s.socket.SetPongHandler(func(string) error {
-		s.socket.SetReadDeadline(time.Now().Add(readWait))
 		return nil
 	})
 
@@ -79,7 +83,6 @@ func (s *WSSession) readLoop() {
 	)
 
 	for {
-		s.socket.SetReadDeadline(time.Now().Add(readWait))
 		msgType, msgData, err = s.socket.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived, websocket.CloseAbnormalClosure) {
@@ -103,25 +106,49 @@ func (s *WSSession) writeLoop() {
 	defer func() {
 		s.Close()
 	}()
-	pingTicker := time.NewTicker(pingPeriod)
-
+	// pingTicker := time.NewTicker(pingPeriod)
+	//s.socket.SetWriteDeadline(time.Now().Add(writeWait))
 	var (
 		message *WSMessage
 		err     error
 	)
+
 	for {
 		select {
 		case message = <-s.outChan:
-			s.socket.SetWriteDeadline(time.Now().Add(writeWait))
+			log.Debug("send message")
+
 			if err = s.socket.WriteMessage(message.MsgType, message.MsgData); err != nil {
 				log.Errorf("gateway: wrtieLoop error: %v", err)
 				return
 			}
-		case <-pingTicker.C:
-			s.socket.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := s.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Errorf("gateway: wrtieLoop ping error: %v", err)
-				return
+			// case <-pingTicker.C:
+			// 	if err := s.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
+			// 		log.Errorf("gateway: wrtieLoop ping error: %v", err)
+			// 		return
+			// 	}
+		}
+	}
+}
+
+func (s *WSSession) commandLoop() {
+	var commands []*Command
+	timer := time.NewTicker(1 * time.Second).C
+	for {
+		select {
+		case cmd := <-s.commandChan:
+			commands = append(commands, cmd)
+		case <-timer:
+			//log.Debugf("command chan length: %d", len(s.commandChan))
+			if len(commands) > 0 {
+				buf, err := json.Marshal(commands)
+				if err != nil {
+					log.Debugf("gateway: command marshal failed: %v", err)
+					continue
+				}
+				message := &WSMessage{websocket.TextMessage, buf}
+				s.SendMessage(message)
+				commands = []*Command{}
 			}
 		}
 	}
@@ -137,6 +164,12 @@ func (s *WSSession) ReadMessage() *WSMessage {
 func (s *WSSession) SendMessage(msg *WSMessage) {
 	select {
 	case s.outChan <- msg:
+	}
+}
+
+func (s *WSSession) SendCommand(cmd *Command) {
+	select {
+	case s.commandChan <- cmd:
 	}
 }
 
@@ -172,14 +205,15 @@ func (s *WSSession) StartTasks() {
 
 	go s.readLoop()
 	go s.writeLoop()
-	go s.refreshRouter()
+	go s.commandLoop()
+	//go s.refreshRouter()
 
 	var (
 		message     *WSMessage
 		commandReq  *Command
 		commandResp *Command
 		err         error
-		buf         []byte
+		//buf         []byte
 	)
 
 	for {
@@ -217,6 +251,12 @@ func (s *WSSession) StartTasks() {
 				log.Errorf("gateway: handle PUSHALL command error: %v", err)
 				continue
 			}
+		case "PUSHROOM":
+			commandResp, err = s.handleRoomPush(s.roomID, commandReq)
+			if err != nil {
+				log.Errorf("gateway: handle PUSHALL command error: %v", err)
+				continue
+			}
 		default:
 			in := &dispatcherProto.CommandRequest{
 				OP:   commandReq.OP,
@@ -229,6 +269,7 @@ func (s *WSSession) StartTasks() {
 			)
 			ctx := metadata.NewOutgoingContext(context.Background(), md)
 
+			log.Debugf("gateway: handle message: %s", commandReq.OP)
 			handleCommandReply, err := s.dispatcherClient.HandleCommand(ctx, in)
 			if err != nil {
 				log.Errorf("gateway: command error from dispatcher server: %v", err)
@@ -245,13 +286,14 @@ func (s *WSSession) StartTasks() {
 		}
 
 		if commandResp != nil {
-			buf, err = json.Marshal(*commandResp)
-			if err != nil {
-				continue
-			}
+			// buf, err = json.Marshal(*commandResp)
+			// if err != nil {
+			// 	continue
+			// }
 
-			message = &WSMessage{websocket.TextMessage, buf}
-			s.SendMessage(message)
+			// message = &WSMessage{websocket.TextMessage, buf}
+			// s.SendMessage(message)
+			s.SendCommand(commandResp)
 		}
 	}
 }

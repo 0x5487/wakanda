@@ -32,6 +32,10 @@ func (l *IdentityMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) 
 
 	token := c.RequestHeader("Authorization")
 
+	if len(token) == 0 {
+		token = c.Query("token")
+	}
+
 	// hard-coding for test purpose
 	switch token {
 	case "4d96f463-dc14-44f0-af4f-c284e15c89cc":

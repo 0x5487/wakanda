@@ -7,11 +7,13 @@ import (
 type Manager struct {
 	gatewayAddr string
 	buckets     []*Bucket
+	status      *Status
 }
 
 func NewManager() *Manager {
 	m := &Manager{
 		buckets: make([]*Bucket, 1024),
+		status:  &Status{},
 	}
 
 	// inital bucket setting
@@ -19,6 +21,10 @@ func NewManager() *Manager {
 		m.buckets[idx] = NewBucket(idx, 32)
 	}
 	return m
+}
+
+func (m *Manager) Status() *Status {
+	return m.status
 }
 
 func (m *Manager) SetGatewayAddr(gatewayAddr string) {
@@ -33,11 +39,13 @@ func (m *Manager) BucketBySessionID(sessionID string) *Bucket {
 func (m *Manager) AddSession(session *WSSession) {
 	bucket := m.BucketBySessionID(session.ID)
 	bucket.addSession(session)
+	m.status.IncreaseOnlinePeople()
 }
 
 func (m *Manager) DeleteSession(session *WSSession) {
 	bucket := m.BucketBySessionID(session.ID)
 	bucket.deleteSession(session)
+	m.status.DecreaseOnlinePeople()
 
 	// leave room
 	session.rooms.Range(func(key, _ interface{}) bool {
