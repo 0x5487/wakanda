@@ -23,7 +23,8 @@
                 if (ws) {
                     return false;
                 }
-                ws = new WebSocket("ws://localhost:19999/ws");
+                var url = document.querySelector("#txtURL").value;                
+                ws = new WebSocket(url);
                 ws.onopen = function(evt) {
                     print("OPEN");
                 }
@@ -79,6 +80,21 @@
                 ws.send(JSON.stringify({op: "PUSHALL", data: content.value}));
                 return false;
             };
+            document.getElementById("pushroom").onclick = function(evt) {
+                if (!ws) {
+                    return false;
+                }
+                content = document.querySelector("#txtContent").value;
+                var msg = {
+                    seq_id: Math.round(new Date().getTime()/1000.0),
+                    group_id: "2f592803-5866-474f-a688-a4fa5a58dda9",
+                    type: 2,
+                    content: content
+                }
+                print("PUSHROOM: " + msg.content);
+                ws.send(JSON.stringify({op: "PUSHROOM", data: msg.content}));
+                return false;
+            };
             document.getElementById("msg").onclick = function(evt) {
                 if (!ws) {
                     return false;
@@ -102,9 +118,9 @@
     <tr><td valign="top" width="50%">
         <form>
         <p>
+            <input id="txtURL" type="text" value="ws://localhost:19999/rooms/abc" style="width:200px">
             <button id="open">Open</button>
             <button id="close">Close</button>
-            <button id="clear">Clear</button>
         </p>
         <p>
             <input id="txtRoomID" type="text" value="ROA">
@@ -114,7 +130,11 @@
         <p>
             <input text="textarea" id="txtContent" value="hello world"/>
             <button id="pushall">PUSHALL</button>
+            <button id="pushroom">PUSHROOM</button>
             <button id="msg">MSG</button>
+        </p>
+        <p>
+        <button id="clear">Clear</button>
         </p>
         </form>
     </td><td valign="top" width="50%">

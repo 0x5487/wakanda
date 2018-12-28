@@ -19,9 +19,12 @@ require (
 	github.com/jasonsoft/log v0.0.0-20180808044215-1daf6a8586a8
 	github.com/jasonsoft/napnap v0.0.0-20180808044343-cdceab4d8da2
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
+	github.com/json-iterator/go v1.1.5
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/nats-io/gnatsd v1.3.0 // indirect
 	github.com/nats-io/go-nats v1.6.0 // indirect
 	github.com/nats-io/go-nats-streaming v0.4.0

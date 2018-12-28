@@ -2,7 +2,7 @@ package gateway
 
 import (
 	"context"
-	"encoding/json"
+
 	"sync"
 	"time"
 
@@ -14,6 +14,7 @@ import (
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
 	"github.com/satori/go.uuid"
 	"google.golang.org/grpc/metadata"
+	"github.com/json-iterator/go"
 )
 
 const (
@@ -21,10 +22,10 @@ const (
 	writeWait = 10 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
-	readWait = 60 * time.Second
+	pongPeriod = 60 * time.Second
 
 	// Send pings to peer with this period. Must be less than readWait.
-	pingPeriod = 20
+	pingPeriod = 20 * time.Second
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 2048
@@ -70,7 +71,7 @@ func (s *WSSession) readLoop() {
 		s.Close()
 	}()
 	s.socket.SetReadLimit(maxMessageSize)
-	//s.socket.SetReadDeadline(time.Now().Add(readWait))
+	//s.socket.SetReadDeadline(time.Now().Add(pongPeriod))
 	s.socket.SetPongHandler(func(string) error {
 		return nil
 	})
@@ -106,7 +107,7 @@ func (s *WSSession) writeLoop() {
 	defer func() {
 		s.Close()
 	}()
-	// pingTicker := time.NewTicker(pingPeriod)
+	pingTicker := time.NewTicker(pingPeriod)
 	//s.socket.SetWriteDeadline(time.Now().Add(writeWait))
 	var (
 		message *WSMessage
@@ -116,17 +117,15 @@ func (s *WSSession) writeLoop() {
 	for {
 		select {
 		case message = <-s.outChan:
-			log.Debug("send message")
-
 			if err = s.socket.WriteMessage(message.MsgType, message.MsgData); err != nil {
 				log.Errorf("gateway: wrtieLoop error: %v", err)
 				return
 			}
-			// case <-pingTicker.C:
-			// 	if err := s.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
-			// 		log.Errorf("gateway: wrtieLoop ping error: %v", err)
-			// 		return
-			// 	}
+			case <-pingTicker.C:
+				if err := s.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
+					log.Errorf("gateway: wrtieLoop ping error: %v", err)
+					return
+				}
 		}
 	}
 }
@@ -134,21 +133,23 @@ func (s *WSSession) writeLoop() {
 func (s *WSSession) commandLoop() {
 	var commands []*Command
 	timer := time.NewTicker(1 * time.Second).C
+	jsoner := jsoniter.ConfigCompatibleWithStandardLibrary
+
 	for {
 		select {
 		case cmd := <-s.commandChan:
 			commands = append(commands, cmd)
 		case <-timer:
 			//log.Debugf("command chan length: %d", len(s.commandChan))
-			if len(commands) > 0 {
-				buf, err := json.Marshal(commands)
+			if len(commands) > 0 {				
+				buf, err := jsoner.Marshal(commands)
+				commands = []*Command{}
 				if err != nil {
-					log.Debugf("gateway: command marshal failed: %v", err)
+					log.Errorf("gateway: command marshal failed: %v", err)
 					continue
 				}
-				message := &WSMessage{websocket.TextMessage, buf}
-				s.SendMessage(message)
-				commands = []*Command{}
+				message := &WSMessage{websocket.TextMessage, buf}				
+				s.SendMessage(message)				
 			}
 		}
 	}
@@ -164,12 +165,14 @@ func (s *WSSession) ReadMessage() *WSMessage {
 func (s *WSSession) SendMessage(msg *WSMessage) {
 	select {
 	case s.outChan <- msg:
+	default:
 	}
 }
 
 func (s *WSSession) SendCommand(cmd *Command) {
 	select {
 	case s.commandChan <- cmd:
+	default:
 	}
 }
 
@@ -226,7 +229,7 @@ func (s *WSSession) StartTasks() {
 
 		commandReq, err = CreateCommand(message.MsgData)
 		if err != nil {
-			log.Warn("gateway: websocket message is invalid command")
+			log.Errorf("gateway: websocket message is invalid command: %v", err)
 			continue
 		}
 		commandResp = nil

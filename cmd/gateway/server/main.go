@@ -9,6 +9,9 @@ import (
 	"syscall"
 	"time"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/internal/config"
@@ -71,6 +74,10 @@ func main() {
 		if err != nil {
 			log.Error(err)
 		}
+	}()
+
+	go func() {
+		http.ListenAndServe(":18000", nil)
 	}()
 
 	stopChan := make(chan os.Signal, 1)

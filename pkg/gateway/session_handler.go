@@ -11,7 +11,7 @@ type CommandJoinData struct {
 }
 
 func (s *WSSession) handleJoin(commandReq *Command) (*Command, error) {
-	log.Info("gateway: join command is handling")
+	log.Debug("gateway: join command is handling")
 	joinData := CommandJoinData{}
 
 	err := json.Unmarshal(commandReq.Data, &joinData)
@@ -28,7 +28,7 @@ type CommandLeaveData struct {
 }
 
 func (s *WSSession) handleLeave(commandReq *Command) (*Command, error) {
-	log.Info("gateway: leave command is handling")
+	log.Debug("gateway: leave command is handling")
 	leaveData := CommandLeaveData{}
 
 	err := json.Unmarshal(commandReq.Data, &leaveData)
@@ -41,7 +41,7 @@ func (s *WSSession) handleLeave(commandReq *Command) (*Command, error) {
 }
 
 func (s *WSSession) handlePushAll(commandReq *Command) (*Command, error) {
-	log.Infof("gateway: PUSHALL command is handling, session id: %s", s.ID)
+	log.Debugf("gateway: PUSHALL command is handling, session id: %s", s.ID)
 
 	msg := ""
 	err := json.Unmarshal(commandReq.Data, &msg)
@@ -66,7 +66,7 @@ func (s *WSSession) handlePushAll(commandReq *Command) (*Command, error) {
 }
 
 func (s *WSSession) handleRoomPush(roomID string, commandReq *Command) (*Command, error) {
-	log.Infof("gateway: PUSHROOM command is handling, session id: %s", s.ID)
+	log.Debugf("gateway: PUSHROOM command is handling, session id: %s", s.ID)
 
 	msg := ""
 	err := json.Unmarshal(commandReq.Data, &msg)
