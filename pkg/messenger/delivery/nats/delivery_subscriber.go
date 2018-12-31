@@ -45,6 +45,7 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 			return
 		}
 
+		// finds all members of the group
 		opts := &messenger.FindGroupMemberOptions{
 			GroupID: msg.GroupID,
 		}
@@ -55,6 +56,7 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 			return
 		}
 
+		// get routes which member is online
 		routeReq := &routerProto.RouteRequest{}
 		for _, member := range groupMembers {
 			routeReq.MemberIDs = append(routeReq.MemberIDs, member.MemberID)
@@ -81,6 +83,7 @@ func (sub *DeliverySubscriber) SubscribeDeliverySubject(ctx context.Context) {
 			return
 		}
 
+		// send Job requests to gateway and ask gateway to send message to member
 		jobReq := &gatewayProto.SendJobRequest{}
 		for _, route := range routeReply.Routes {
 			job := &gatewayProto.Job{
