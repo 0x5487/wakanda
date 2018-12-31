@@ -37,6 +37,8 @@ type WSMessage struct {
 }
 
 type WSSession struct {
+	mutex sync.Mutex
+	isActive bool
 	manager          *Manager
 	dispatcherClient dispatcherProto.DispatcherServiceClient
 	routerClient     routerProto.RouterServiceClient
@@ -53,9 +55,11 @@ type WSSession struct {
 
 func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient, roomID string) *WSSession {
 	return &WSSession{
+		mutex: sync.Mutex{},
 		manager:          manager,
 		dispatcherClient: dispatcherClient,
 		routerClient:     routerClient,
+		isActive: true,
 		ID:               id,
 		member:           member,
 		socket:           conn,
@@ -176,10 +180,16 @@ func (s *WSSession) SendCommand(cmd *Command) {
 	}
 }
 
+// Close func which closes websocket session and remove session from bucket and room.
 func (s *WSSession) Close() {
-	s.socket.Close()
-	s.manager.DeleteSession(s)
-	log.Debugf("gateway: session was closed")
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	if s.isActive {
+		s.socket.Close()
+		s.manager.DeleteSession(s)
+		s.isActive = false
+		log.Debugf("gateway: session was closed")
+	}
 }
 
 func (s *WSSession) refreshRouter() {
