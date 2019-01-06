@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package proto;
+
+message ChatroomCommand {
+  string RoomID = 1;
+  string SenderID = 2;
+  string SenderFirstName = 3;
+  string SenderLastName = 4;
+  bytes Data = 5;
+}
+
+
+

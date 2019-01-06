@@ -41,8 +41,10 @@ func (l *IdentityMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) 
 	case "4d96f463-dc14-44f0-af4f-c284e15c89cc":
 		stdctx := c.StdContext()
 		claim := types.Claim{
-			UserID:   "4d96f463-dc14-44f0-af4f-c284e15c89cc",
-			Username: "angela",
+			UserID:    "4d96f463-dc14-44f0-af4f-c284e15c89cc",
+			Username:  "angela",
+			Firstname: "Angela",
+			Lastname:  "Wang",
 		}
 		ctx := NewContext(stdctx, &claim)
 		c.SetStdContext(ctx)
@@ -50,8 +52,10 @@ func (l *IdentityMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) 
 	default:
 		stdctx := c.StdContext()
 		claim := types.Claim{
-			UserID:   "aa58c0a6-32e3-4621-bb43-f45754f9f3dd",
-			Username: "jason",
+			UserID:    "aa58c0a6-32e3-4621-bb43-f45754f9f3dd",
+			Username:  "jason",
+			Firstname: "Jason",
+			Lastname:  "Lee",
 		}
 		ctx := NewContext(stdctx, &claim)
 		c.SetStdContext(ctx)

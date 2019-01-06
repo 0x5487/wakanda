@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/jasonsoft/log"
-
 	"github.com/jasonsoft/wakanda/pkg/gateway"
-
 	gatewayProto "github.com/jasonsoft/wakanda/pkg/gateway/proto"
 )
 
@@ -40,6 +38,8 @@ func (s *JobServer) SendJobs(ctx context.Context, in *gatewayProto.SendJobReques
 		switch rpcJob.Type {
 		case "S":
 			s.SendCommandToSession(context.Background(), rpcJob.TargetID, command)
+		case "PUSHROOM":
+			s.PushCommandToRoom(context.Background(), rpcJob.TargetID, command)
 		}
 	}
 
@@ -48,4 +48,8 @@ func (s *JobServer) SendJobs(ctx context.Context, in *gatewayProto.SendJobReques
 
 func (s *JobServer) SendCommandToSession(ctx context.Context, sessionID string, command *gateway.Command) {
 	s.manager.Push(sessionID, command)
+}
+
+func (s *JobServer) PushCommandToRoom(ctx context.Context, roomID string, cmd *gateway.Command) {
+	s.manager.PushRoom(roomID, cmd)
 }

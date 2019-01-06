@@ -1,6 +1,8 @@
 package identity
 
 type Member struct {
-	ID   string
-	Name string
+	ID        string
+	Username  string
+	Firstname string
+	Lastname  string
 }

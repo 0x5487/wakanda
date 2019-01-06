@@ -47,14 +47,12 @@ func initialize(config *config.Configuration) {
 	_dispatcherClient = dispatcherProto.NewDispatcherServiceClient(conn)
 
 	// setup router client
-	/*
-		routerConn, err := grpc.Dial(config.Router.AdvertiseAddr, opts...)
-		if err != nil {
-			log.Fatalf("gateway: can't connect to router grpc service: %v", err)
-		}
-		log.Info("gateway: router service was connected")
-		_routerClient = routerProto.NewRouterServiceClient(routerConn)
-	*/
+	routerConn, err := grpc.Dial(config.Router.AdvertiseAddr, opts...)
+	if err != nil {
+		log.Fatalf("gateway: can't connect to router grpc service: %v", err)
+	}
+	log.Info("gateway: router service was connected")
+	_routerClient = routerProto.NewRouterServiceClient(routerConn)
 
 }
 

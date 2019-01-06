@@ -10,8 +10,8 @@ import (
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
 	"github.com/jasonsoft/wakanda/internal/config"
+	deliveryNats "github.com/jasonsoft/wakanda/pkg/delivery/delivery/nats"
 	gatewayProto "github.com/jasonsoft/wakanda/pkg/gateway/proto"
-	messengerNats "github.com/jasonsoft/wakanda/pkg/messenger/delivery/nats"
 	messengerCockroachdb "github.com/jasonsoft/wakanda/pkg/messenger/repository/cockroachdb"
 	messengerSvc "github.com/jasonsoft/wakanda/pkg/messenger/service"
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	deliverySub *messengerNats.DeliverySubscriber
+	_deliveryPubSub *deliveryNats.DeliveryPubSub
 )
 
 func initialize(config *config.Configuration) error {
@@ -55,11 +55,11 @@ func initialize(config *config.Configuration) error {
 	// setup gateway client
 	gatewayJobConn, err := grpc.Dial(config.Gateway.AdvertiseJobAddr, opts...)
 	if err != nil {
-		log.Fatalf("delivery: can't connect to router grpc service: %v", err)
+		log.Fatalf("delivery: can't connect to gateway job grpc service: %v", err)
 	}
-	log.Info("delivery: router service was connected")
+	log.Info("delivery: gateway job service was connected")
 	gatewayJobClient := gatewayProto.NewJobServiceClient(gatewayJobConn)
-	deliverySub = messengerNats.NewDeliverySubscriber(natsConn, groupSvc, routerClient, gatewayJobClient)
+	_deliveryPubSub = deliveryNats.NewDeliveryPubSub(natsConn, groupSvc, routerClient, gatewayJobClient)
 
 	return nil
 }

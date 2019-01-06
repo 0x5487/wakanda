@@ -23,94 +23,124 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// The request message containing the user's name.
-type CommandRequest struct {
-	OP                   string   `protobuf:"bytes,2,opt,name=OP,proto3" json:"OP,omitempty"`
-	Data                 []byte   `protobuf:"bytes,3,opt,name=Data,proto3" json:"Data,omitempty"`
+type DispatcherCommandRequest struct {
+	OP                   string   `protobuf:"bytes,1,opt,name=OP,proto3" json:"OP,omitempty"`
+	SenderID             string   `protobuf:"bytes,2,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
+	SenderFirstName      string   `protobuf:"bytes,3,opt,name=SenderFirstName,proto3" json:"SenderFirstName,omitempty"`
+	SenderLastName       string   `protobuf:"bytes,4,opt,name=SenderLastName,proto3" json:"SenderLastName,omitempty"`
+	TargetID             string   `protobuf:"bytes,5,opt,name=TargetID,proto3" json:"TargetID,omitempty"`
+	Data                 []byte   `protobuf:"bytes,6,opt,name=Data,proto3" json:"Data,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CommandRequest) Reset()         { *m = CommandRequest{} }
-func (m *CommandRequest) String() string { return proto.CompactTextString(m) }
-func (*CommandRequest) ProtoMessage()    {}
-func (*CommandRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dispatcher_94d9bbd95c02f2ef, []int{0}
+func (m *DispatcherCommandRequest) Reset()         { *m = DispatcherCommandRequest{} }
+func (m *DispatcherCommandRequest) String() string { return proto.CompactTextString(m) }
+func (*DispatcherCommandRequest) ProtoMessage()    {}
+func (*DispatcherCommandRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dispatcher_2bc32df0c98ae157, []int{0}
 }
-func (m *CommandRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CommandRequest.Unmarshal(m, b)
+func (m *DispatcherCommandRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DispatcherCommandRequest.Unmarshal(m, b)
 }
-func (m *CommandRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CommandRequest.Marshal(b, m, deterministic)
+func (m *DispatcherCommandRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DispatcherCommandRequest.Marshal(b, m, deterministic)
 }
-func (dst *CommandRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CommandRequest.Merge(dst, src)
+func (dst *DispatcherCommandRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DispatcherCommandRequest.Merge(dst, src)
 }
-func (m *CommandRequest) XXX_Size() int {
-	return xxx_messageInfo_CommandRequest.Size(m)
+func (m *DispatcherCommandRequest) XXX_Size() int {
+	return xxx_messageInfo_DispatcherCommandRequest.Size(m)
 }
-func (m *CommandRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_CommandRequest.DiscardUnknown(m)
+func (m *DispatcherCommandRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DispatcherCommandRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CommandRequest proto.InternalMessageInfo
+var xxx_messageInfo_DispatcherCommandRequest proto.InternalMessageInfo
 
-func (m *CommandRequest) GetOP() string {
+func (m *DispatcherCommandRequest) GetOP() string {
 	if m != nil {
 		return m.OP
 	}
 	return ""
 }
 
-func (m *CommandRequest) GetData() []byte {
+func (m *DispatcherCommandRequest) GetSenderID() string {
+	if m != nil {
+		return m.SenderID
+	}
+	return ""
+}
+
+func (m *DispatcherCommandRequest) GetSenderFirstName() string {
+	if m != nil {
+		return m.SenderFirstName
+	}
+	return ""
+}
+
+func (m *DispatcherCommandRequest) GetSenderLastName() string {
+	if m != nil {
+		return m.SenderLastName
+	}
+	return ""
+}
+
+func (m *DispatcherCommandRequest) GetTargetID() string {
+	if m != nil {
+		return m.TargetID
+	}
+	return ""
+}
+
+func (m *DispatcherCommandRequest) GetData() []byte {
 	if m != nil {
 		return m.Data
 	}
 	return nil
 }
 
-// The response message containing the greetings
-type CommandReply struct {
-	OP                   string   `protobuf:"bytes,2,opt,name=OP,proto3" json:"OP,omitempty"`
-	Data                 []byte   `protobuf:"bytes,3,opt,name=Data,proto3" json:"Data,omitempty"`
+type DispatcherCommandReply struct {
+	OP                   string   `protobuf:"bytes,1,opt,name=OP,proto3" json:"OP,omitempty"`
+	Data                 []byte   `protobuf:"bytes,2,opt,name=Data,proto3" json:"Data,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CommandReply) Reset()         { *m = CommandReply{} }
-func (m *CommandReply) String() string { return proto.CompactTextString(m) }
-func (*CommandReply) ProtoMessage()    {}
-func (*CommandReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dispatcher_94d9bbd95c02f2ef, []int{1}
+func (m *DispatcherCommandReply) Reset()         { *m = DispatcherCommandReply{} }
+func (m *DispatcherCommandReply) String() string { return proto.CompactTextString(m) }
+func (*DispatcherCommandReply) ProtoMessage()    {}
+func (*DispatcherCommandReply) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dispatcher_2bc32df0c98ae157, []int{1}
 }
-func (m *CommandReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CommandReply.Unmarshal(m, b)
+func (m *DispatcherCommandReply) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DispatcherCommandReply.Unmarshal(m, b)
 }
-func (m *CommandReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CommandReply.Marshal(b, m, deterministic)
+func (m *DispatcherCommandReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DispatcherCommandReply.Marshal(b, m, deterministic)
 }
-func (dst *CommandReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CommandReply.Merge(dst, src)
+func (dst *DispatcherCommandReply) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DispatcherCommandReply.Merge(dst, src)
 }
-func (m *CommandReply) XXX_Size() int {
-	return xxx_messageInfo_CommandReply.Size(m)
+func (m *DispatcherCommandReply) XXX_Size() int {
+	return xxx_messageInfo_DispatcherCommandReply.Size(m)
 }
-func (m *CommandReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_CommandReply.DiscardUnknown(m)
+func (m *DispatcherCommandReply) XXX_DiscardUnknown() {
+	xxx_messageInfo_DispatcherCommandReply.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CommandReply proto.InternalMessageInfo
+var xxx_messageInfo_DispatcherCommandReply proto.InternalMessageInfo
 
-func (m *CommandReply) GetOP() string {
+func (m *DispatcherCommandReply) GetOP() string {
 	if m != nil {
 		return m.OP
 	}
 	return ""
 }
 
-func (m *CommandReply) GetData() []byte {
+func (m *DispatcherCommandReply) GetData() []byte {
 	if m != nil {
 		return m.Data
 	}
@@ -118,8 +148,8 @@ func (m *CommandReply) GetData() []byte {
 }
 
 func init() {
-	proto.RegisterType((*CommandRequest)(nil), "proto.CommandRequest")
-	proto.RegisterType((*CommandReply)(nil), "proto.CommandReply")
+	proto.RegisterType((*DispatcherCommandRequest)(nil), "proto.DispatcherCommandRequest")
+	proto.RegisterType((*DispatcherCommandReply)(nil), "proto.DispatcherCommandReply")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -135,7 +165,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DispatcherServiceClient interface {
 	// handle a command
-	HandleCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandReply, error)
+	HandleCommand(ctx context.Context, in *DispatcherCommandRequest, opts ...grpc.CallOption) (*DispatcherCommandReply, error)
 }
 
 type dispatcherServiceClient struct {
@@ -146,8 +176,8 @@ func NewDispatcherServiceClient(cc *grpc.ClientConn) DispatcherServiceClient {
 	return &dispatcherServiceClient{cc}
 }
 
-func (c *dispatcherServiceClient) HandleCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandReply, error) {
-	out := new(CommandReply)
+func (c *dispatcherServiceClient) HandleCommand(ctx context.Context, in *DispatcherCommandRequest, opts ...grpc.CallOption) (*DispatcherCommandReply, error) {
+	out := new(DispatcherCommandReply)
 	err := c.cc.Invoke(ctx, "/proto.DispatcherService/HandleCommand", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -158,7 +188,7 @@ func (c *dispatcherServiceClient) HandleCommand(ctx context.Context, in *Command
 // DispatcherServiceServer is the server API for DispatcherService service.
 type DispatcherServiceServer interface {
 	// handle a command
-	HandleCommand(context.Context, *CommandRequest) (*CommandReply, error)
+	HandleCommand(context.Context, *DispatcherCommandRequest) (*DispatcherCommandReply, error)
 }
 
 func RegisterDispatcherServiceServer(s *grpc.Server, srv DispatcherServiceServer) {
@@ -166,7 +196,7 @@ func RegisterDispatcherServiceServer(s *grpc.Server, srv DispatcherServiceServer
 }
 
 func _DispatcherService_HandleCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CommandRequest)
+	in := new(DispatcherCommandRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -178,7 +208,7 @@ func _DispatcherService_HandleCommand_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/proto.DispatcherService/HandleCommand",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DispatcherServiceServer).HandleCommand(ctx, req.(*CommandRequest))
+		return srv.(DispatcherServiceServer).HandleCommand(ctx, req.(*DispatcherCommandRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -197,20 +227,25 @@ var _DispatcherService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("pkg/dispatcher/proto/dispatcher.proto", fileDescriptor_dispatcher_94d9bbd95c02f2ef)
+	proto.RegisterFile("pkg/dispatcher/proto/dispatcher.proto", fileDescriptor_dispatcher_2bc32df0c98ae157)
 }
 
-var fileDescriptor_dispatcher_94d9bbd95c02f2ef = []byte{
-	// 165 bytes of a gzipped FileDescriptorProto
+var fileDescriptor_dispatcher_2bc32df0c98ae157 = []byte{
+	// 243 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x2d, 0xc8, 0x4e, 0xd7,
 	0x4f, 0xc9, 0x2c, 0x2e, 0x48, 0x2c, 0x49, 0xce, 0x48, 0x2d, 0xd2, 0x2f, 0x28, 0xca, 0x2f, 0xc9,
-	0x47, 0x12, 0xd0, 0x03, 0x0b, 0x08, 0xb1, 0x82, 0x29, 0x25, 0x13, 0x2e, 0x3e, 0xe7, 0xfc, 0xdc,
-	0xdc, 0xc4, 0xbc, 0x94, 0xa0, 0xd4, 0xc2, 0xd2, 0xd4, 0xe2, 0x12, 0x21, 0x3e, 0x2e, 0x26, 0xff,
-	0x00, 0x09, 0x26, 0x05, 0x46, 0x0d, 0xce, 0x20, 0x26, 0xff, 0x00, 0x21, 0x21, 0x2e, 0x16, 0x97,
-	0xc4, 0x92, 0x44, 0x09, 0x66, 0x05, 0x46, 0x0d, 0x9e, 0x20, 0x30, 0x5b, 0xc9, 0x88, 0x8b, 0x07,
-	0xae, 0xab, 0x20, 0xa7, 0x92, 0x18, 0x3d, 0x46, 0x41, 0x5c, 0x82, 0x2e, 0x70, 0x47, 0x04, 0xa7,
-	0x16, 0x95, 0x65, 0x26, 0xa7, 0x0a, 0xd9, 0x72, 0xf1, 0x7a, 0x24, 0xe6, 0xa5, 0xe4, 0xa4, 0x42,
-	0x8d, 0x13, 0x12, 0x85, 0x38, 0x4f, 0x0f, 0xd5, 0x51, 0x52, 0xc2, 0xe8, 0xc2, 0x05, 0x39, 0x95,
-	0x4a, 0x0c, 0x49, 0x6c, 0x60, 0x51, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x3e, 0x54, 0x24,
-	0xa8, 0xf4, 0x00, 0x00, 0x00,
+	0x47, 0x12, 0xd0, 0x03, 0x0b, 0x08, 0xb1, 0x82, 0x29, 0xa5, 0x13, 0x8c, 0x5c, 0x12, 0x2e, 0x70,
+	0x39, 0xe7, 0xfc, 0xdc, 0xdc, 0xc4, 0xbc, 0x94, 0xa0, 0xd4, 0xc2, 0xd2, 0xd4, 0xe2, 0x12, 0x21,
+	0x3e, 0x2e, 0x26, 0xff, 0x00, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20, 0x26, 0xff, 0x00, 0x21,
+	0x29, 0x2e, 0x8e, 0xe0, 0xd4, 0xbc, 0x94, 0xd4, 0x22, 0x4f, 0x17, 0x09, 0x26, 0xb0, 0x28, 0x9c,
+	0x2f, 0xa4, 0xc1, 0xc5, 0x0f, 0x61, 0xbb, 0x65, 0x16, 0x15, 0x97, 0xf8, 0x25, 0xe6, 0xa6, 0x4a,
+	0x30, 0x83, 0x95, 0xa0, 0x0b, 0x0b, 0xa9, 0x71, 0xf1, 0x41, 0x84, 0x7c, 0x12, 0xa1, 0x0a, 0x59,
+	0xc0, 0x0a, 0xd1, 0x44, 0x41, 0xb6, 0x85, 0x24, 0x16, 0xa5, 0xa7, 0x96, 0x78, 0xba, 0x48, 0xb0,
+	0x42, 0x6c, 0x83, 0xf1, 0x85, 0x84, 0xb8, 0x58, 0x5c, 0x12, 0x4b, 0x12, 0x25, 0xd8, 0x14, 0x18,
+	0x35, 0x78, 0x82, 0xc0, 0x6c, 0x25, 0x1b, 0x2e, 0x31, 0x2c, 0x3e, 0x29, 0xc8, 0xa9, 0xc4, 0xf0,
+	0x07, 0x4c, 0x37, 0x13, 0x42, 0xb7, 0x51, 0x1a, 0x97, 0x20, 0x42, 0x77, 0x70, 0x6a, 0x51, 0x59,
+	0x66, 0x72, 0xaa, 0x50, 0x20, 0x17, 0xaf, 0x47, 0x62, 0x5e, 0x4a, 0x4e, 0x2a, 0xd4, 0x38, 0x21,
+	0x79, 0x48, 0xe8, 0xe9, 0xe1, 0x0a, 0x32, 0x29, 0x59, 0xdc, 0x0a, 0x0a, 0x72, 0x2a, 0x95, 0x18,
+	0x92, 0xd8, 0xc0, 0xf2, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x67, 0x5e, 0x72, 0x1e, 0xa7,
+	0x01, 0x00, 0x00,
 }

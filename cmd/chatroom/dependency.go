@@ -7,26 +7,23 @@ import (
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
 	"github.com/jasonsoft/wakanda/internal/config"
-	dispatcherGRPC "github.com/jasonsoft/wakanda/pkg/dispatcher/delivery/grpc"
-	dispatcherNats "github.com/jasonsoft/wakanda/pkg/dispatcher/delivery/nats"
+	chatroomNats "github.com/jasonsoft/wakanda/pkg/chatroom/delivery/nats"
 	"github.com/nats-io/go-nats-streaming"
 )
 
 var (
-	// grpc servers
-	_dispatcherServer *dispatcherGRPC.DispatcherServer
+	_chatroomPubSub *chatroomNats.ChatroomPubSub
 )
 
 func initialize(config *config.Configuration) error {
-	initLogger("dispatcher", config)
+	initLogger("chatroom", config)
 
 	natsConn, err := setupNatsConn(config)
 	if err != nil {
 		return err
 	}
 
-	dispatcherPub := dispatcherNats.NewDispatcherPub(natsConn)
-	_dispatcherServer = dispatcherGRPC.NewDispatcherServer(dispatcherPub)
+	_chatroomPubSub = chatroomNats.NewChatroomPubSub(natsConn)
 
 	return nil
 }
@@ -50,7 +47,7 @@ func initLogger(appID string, config *config.Configuration) {
 
 func setupNatsConn(config *config.Configuration) (stan.Conn, error) {
 	hostname, _ := os.Hostname()
-	clientID := "dispatcher-" + hostname
+	clientID := "chatroom-" + hostname
 	natsConn, err := stan.Connect(config.Nats.ClusterID, clientID, stan.NatsURL("nats://"+config.Nats.Address))
 	if err != nil {
 		return nil, err

@@ -107,7 +107,7 @@
                     content: content
                 }
                 print("MSG: " + msg.content);
-                ws.send(JSON.stringify({req_id: uuidv4(), op: "MSG", data: msg}));
+                ws.send(JSON.stringify({req_id: uuidv4(), op: "MSGRM", data: msg}));
                 return false;
             };
         });

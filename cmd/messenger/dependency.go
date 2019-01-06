@@ -5,10 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/nats-io/go-nats-streaming"
-
 	"github.com/cenk/backoff"
-
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
@@ -22,6 +19,7 @@ import (
 	messengerCockroachdb "github.com/jasonsoft/wakanda/pkg/messenger/repository/cockroachdb"
 	messengerSvc "github.com/jasonsoft/wakanda/pkg/messenger/service"
 	"github.com/jmoiron/sqlx"
+	"github.com/nats-io/go-nats-streaming"
 )
 
 var (

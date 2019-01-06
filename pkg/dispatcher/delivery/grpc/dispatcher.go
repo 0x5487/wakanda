@@ -6,29 +6,33 @@ import (
 
 	"github.com/jasonsoft/log"
 
-	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
-	messageProto "github.com/jasonsoft/wakanda/pkg/messenger/proto"
+	deliveryNats "github.com/jasonsoft/wakanda/pkg/dispatcher/delivery/nats"
+	deliveryProto "github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
+)
+
+var (
+	_emptyDispatcherCommandReply = deliveryProto.DispatcherCommandReply{}
 )
 
 type DispatcherServer struct {
-	messageClient messageProto.MessageServiceClient
+	dispatcherPub *deliveryNats.DispatcherPub
 }
 
-func NewDispatchServer(messageClient messageProto.MessageServiceClient) *DispatcherServer {
+func NewDispatcherServer(nats *deliveryNats.DispatcherPub) *DispatcherServer {
 	return &DispatcherServer{
-		messageClient: messageClient,
+		dispatcherPub: nats,
 	}
 }
 
-func (svc *DispatcherServer) HandleCommand(ctx context.Context, in *proto.CommandRequest) (*proto.CommandReply, error) {
+func (svc *DispatcherServer) HandleCommand(ctx context.Context, in *deliveryProto.DispatcherCommandRequest) (*deliveryProto.DispatcherCommandReply, error) {
 	log.Debugf("dispatcher: receiver op: %s", in.OP)
 
 	switch in.OP {
-	case "MSG":
-		return svc.handleMSG(ctx, in)
+	case "MSGRM":
+		return svc.handleMSGRM(ctx, in)
 	default:
 		log.Warnf("dispatcher: unknown command: %s", in.OP)
-		reply := &proto.CommandReply{}
+		reply := &deliveryProto.DispatcherCommandReply{}
 		return reply, errors.New("unknown command")
 	}
 

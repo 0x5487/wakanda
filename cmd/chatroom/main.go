@@ -27,23 +27,25 @@ func main() {
 	config := config.New("app.yml")
 	err := initialize(config)
 	if err != nil {
-		panic(err)
+		log.Panicf("chatroom: initialize config fail: %v", err)
 	}
 
+	// start listen nats
 	ctx := context.Background()
-	_deliveryPubSub.SubscribeMSGChatroom(ctx)
-	log.Info("delivery: delivery server started")
+
+	_chatroomPubSub.SubscribeMSGChatroom(ctx)
+	log.Info("chatroom: chatroom server started")
 
 	stopChan := make(chan os.Signal, 1)
 	signal.Notify(stopChan, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
 	<-stopChan
-	log.Info("delivery: delivery shutting down server...")
+	log.Info("chatroom: chatroom shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err := _deliveryPubSub.Shutdown(ctx); err != nil {
-		log.Errorf("delivery: service hanlder shutdown error: %v", err)
+	if err := _chatroomPubSub.Shutdown(ctx); err != nil {
+		log.Errorf("chatroom: service hanlder shutdown error: %v", err)
 	} else {
-		log.Info("delivery: gracefully stopped")
+		log.Info("chatroom: gracefully stopped")
 	}
 }

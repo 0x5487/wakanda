@@ -2,12 +2,11 @@ package grpc
 
 import (
 	"context"
+	"strconv"
 	"time"
 
-	"github.com/jasonsoft/log"
-
 	"github.com/go-redis/redis"
-
+	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/wakanda/pkg/router/proto"
 )
 
@@ -29,6 +28,8 @@ func (s *RouterServer) Routes(ctx context.Context, in *proto.RouteRequest) (*pro
 	log.Debug("router: === Begin Routes ===")
 
 	result := proto.RouteReply{}
+
+	validLastSeenTimestamp := int(time.Now().Add(-5 * time.Minute).Unix())
 
 	for _, memberID := range in.MemberIDs {
 		// get member key
@@ -54,6 +55,29 @@ func (s *RouterServer) Routes(ctx context.Context, in *proto.RouteRequest) (*pro
 				continue
 			}
 
+			// if the session's last_seen is 5 mins ago (invalid session), delete the session.
+			lastseen, err := strconv.Atoi(routeinfo["last_seen"])
+			if err != nil {
+				log.Errorf("router: last seen cast failed: %v", err)
+				continue
+			}
+
+			if lastseen < validLastSeenTimestamp {
+				// delete session
+				_, err = s.redisClient.HDel(sessionKey).Result()
+				if err != nil {
+					log.Errorf("router: redis HGetAll command failed: %v", err)
+					continue
+				}
+
+				// delete memberKey
+				_, err = s.redisClient.SRem(memberKey, sessionID).Result()
+				if err != nil {
+					log.Errorf("router: redis SRem command failed: %v", err)
+					continue
+				}
+			}
+
 			route := &proto.Route{
 				SessionID:   sessionID,
 				MemberID:    memberID,
@@ -70,7 +94,7 @@ func (s *RouterServer) Routes(ctx context.Context, in *proto.RouteRequest) (*pro
 }
 
 func (s *RouterServer) CreateOrUpdateRoute(ctx context.Context, in *proto.CreateOrUpdateRouteRequest) (*proto.EmptyReply, error) {
-	//log.Debug("router: === Begin CreateOrUpdateRoute ===")
+	log.Debug("router: === Begin CreateOrUpdateRoute ===")
 
 	// create session key
 	m := map[string]interface{}{

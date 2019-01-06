@@ -1,0 +1,1 @@
+protoc pkg/chatroom/proto/chatroom.proto --go_out=plugins=grpc:.

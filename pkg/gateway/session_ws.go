@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	"context"
 
 	"sync"
@@ -47,7 +48,7 @@ type WSSession struct {
 	member      *identity.Member
 	socket      *websocket.Conn
 	rooms       sync.Map
-	roomID      string
+	roomID      string // member play chatroom and use the roomID
 	inChan      chan *WSMessage
 	outChan     chan *WSMessage
 	commandChan chan *Command
@@ -193,7 +194,19 @@ func (s *WSSession) Close() {
 }
 
 func (s *WSSession) refreshRouter() {
-	timer := time.NewTicker(time.Duration(5) * time.Second)
+	defer func() {
+		if r := recover(); r != nil {
+			// unknown error
+			err, ok := r.(error)
+			if !ok {
+				err = fmt.Errorf("gateway: refresh router error: %v", err)
+			}
+			log.StackTrace().Error(err)
+			s.refreshRouter()  // auto-restart
+		}
+	}()
+
+	timer := time.NewTicker(time.Duration(30) * time.Second)
 	log.Debug("gateway: refreshRouter starting")
 
 	for range timer.C {
@@ -219,7 +232,7 @@ func (s *WSSession) StartTasks() {
 	go s.readLoop()
 	go s.writeLoop()
 	go s.commandLoop()
-	//go s.refreshRouter()
+	go s.refreshRouter()
 
 	var (
 		message     *WSMessage
@@ -228,6 +241,7 @@ func (s *WSSession) StartTasks() {
 		err         error
 		//buf         []byte
 	)
+
 
 	for {
 		message = s.ReadMessage()
@@ -271,10 +285,18 @@ func (s *WSSession) StartTasks() {
 				continue
 			}
 		default:
-			in := &dispatcherProto.CommandRequest{
+			in := &dispatcherProto.DispatcherCommandRequest{
 				OP:   commandReq.OP,
 				Data: commandReq.Data,
+				SenderID: s.member.ID,
+				SenderFirstName: s.member.Firstname,
+				SenderLastName: s.member.Lastname,
 			}
+
+			if len(s.roomID) > 0 {
+				in.TargetID = s.roomID
+			}
+
 
 			md := metadata.Pairs(
 				"req_id", uuid.NewV4().String(),

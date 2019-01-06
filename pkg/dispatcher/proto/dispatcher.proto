@@ -2,22 +2,24 @@ syntax = "proto3";
 
 package proto;
 
-// The request message containing the user's name.
-message CommandRequest {
-  string OP = 2;
-  bytes Data = 3;
+message DispatcherCommandRequest {
+  string OP = 1;
+  string SenderID = 2;
+  string SenderFirstName = 3;
+  string SenderLastName = 4;
+  string TargetID = 5;
+  bytes Data = 6;
 }
 
-// The response message containing the greetings
-message CommandReply {
-  string OP = 2;
-  bytes Data = 3;
+message DispatcherCommandReply {
+  string OP = 1;
+  bytes Data = 2;
 }
 
 
 // The dispatcher service definition.
 service DispatcherService {
   // handle a command
-  rpc HandleCommand (CommandRequest) returns (CommandReply) {}
+  rpc HandleCommand (DispatcherCommandRequest) returns (DispatcherCommandReply) {}
 }
 

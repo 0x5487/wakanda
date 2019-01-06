@@ -59,8 +59,10 @@ func (h *GatewayHttpHandler) wsEndpoint(c *napnap.Context) {
 	}
 
 	member := &identity.Member{
-		ID:   claim.UserID,
-		Name: claim.Username,
+		ID:        claim.UserID,
+		Username:  claim.Username,
+		Firstname: claim.Firstname,
+		Lastname:  claim.Lastname,
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -92,8 +94,8 @@ func (h *GatewayHttpHandler) roomEndpoint(c *napnap.Context) {
 	}
 
 	member := &identity.Member{
-		ID:   claim.UserID,
-		Name: claim.Username,
+		ID:       claim.UserID,
+		Username: claim.Username,
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)

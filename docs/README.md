@@ -25,6 +25,8 @@
 #### 架構
 1. http://www.52im.net/thread-1221-1-1.html
 1. http://www.52im.net/thread-812-1-1.html
+1. http://www.52im.net/thread-1861-1-1.html
+1. https://mp.weixin.qq.com/s?__biz=MzI1ODY0NjAwMA==&mid=2247483812&idx=1&sn=26b455c51913af0012ccbe589b4aa355&chksm=ea044b3bdd73c22d8aa6d44fc2cf6d396bd125b92fe229b19dfd4ac456a9b3a5a3c9c00a6963&scene=21#wechat_redirect
 
 
 #### 訊息安全

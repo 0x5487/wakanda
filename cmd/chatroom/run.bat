@@ -1,0 +1,1 @@
+go build -o chatroom.exe && "chatroom.exe"

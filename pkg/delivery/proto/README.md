@@ -1,0 +1,1 @@
+protoc pkg/delivery/proto/delivery.proto --go_out=plugins=grpc:.
