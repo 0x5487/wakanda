@@ -58,6 +58,10 @@ type Configuration struct {
 		AdvertiseAddr string `yaml:"advertise_addr"`
 		GRPCBind      string `yaml:"grpc_bind"`
 	}
+	Identity struct {
+		AdvertiseAddr string `yaml:"advertise_addr"`
+		HTTPBind      string `yaml:"http_bind"`
+	}
 }
 
 func New(fileName string) *Configuration {

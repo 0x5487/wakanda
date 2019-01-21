@@ -94,8 +94,10 @@ func (h *GatewayHttpHandler) roomEndpoint(c *napnap.Context) {
 	}
 
 	member := &identity.Member{
-		ID:       claim.UserID,
-		Username: claim.Username,
+		ID:        claim.UserID,
+		Username:  claim.Username,
+		Firstname: claim.Firstname,
+		Lastname:  claim.Lastname,
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)

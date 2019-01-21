@@ -8,11 +8,11 @@ import (
 	"github.com/jasonsoft/log/handlers/gelf"
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/internal/config"
-	"github.com/jasonsoft/wakanda/internal/identity"
 	"github.com/jasonsoft/wakanda/internal/middleware"
 	dispatcherProto "github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
 	gatewayHttp "github.com/jasonsoft/wakanda/pkg/gateway/delivery/http"
+	"github.com/jasonsoft/wakanda/pkg/identity"
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
 	"google.golang.org/grpc"
 )
@@ -83,7 +83,7 @@ func napWithMiddlewares() *napnap.NapNap {
 	nap.Use(napnap.NewCors(corsOpts))
 	nap.Use(napnap.NewHealth())
 	nap.Use(middleware.NewErrorHandingMiddleware())
-	nap.Use(identity.NewMiddleware())
+	nap.Use(identity.NewAuthMiddleware())
 	nap.Use(gatewayHttp.NewPrometheusMiddleware(_manager))
 	httpHandler := gatewayHttp.NewGatewayHttpHandler(_manager, _dispatcherClient, _routerClient)
 	nap.Use(gatewayHttp.NewGatewayRouter(httpHandler))

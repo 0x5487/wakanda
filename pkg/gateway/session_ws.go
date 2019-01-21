@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jasonsoft/wakanda/internal/identity"
+	"github.com/jasonsoft/wakanda/pkg/identity"
 
 	"github.com/gorilla/websocket"
 	"github.com/jasonsoft/log"
@@ -45,7 +45,7 @@ type WSSession struct {
 	routerClient     routerProto.RouterServiceClient
 
 	ID          string
-	member      *identity.Member
+	claim      *identity.Claim
 	socket      *websocket.Conn
 	rooms       sync.Map
 	roomID      string // member play chatroom and use the roomID
@@ -54,7 +54,7 @@ type WSSession struct {
 	commandChan chan *Command
 }
 
-func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient, roomID string) *WSSession {
+func NewWSSession(id string, claim *identity.Claim, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient, roomID string) *WSSession {
 	return &WSSession{
 		mutex: sync.Mutex{},
 		manager:          manager,
@@ -62,7 +62,7 @@ func NewWSSession(id string, member *identity.Member, conn *websocket.Conn, mana
 		routerClient:     routerClient,
 		isActive: true,
 		ID:               id,
-		member:           member,
+		claim:          claim,
 		socket:           conn,
 		inChan:           make(chan *WSMessage, 1024),
 		outChan:          make(chan *WSMessage, 1024),
@@ -212,7 +212,7 @@ func (s *WSSession) refreshRouter() {
 	for range timer.C {
 		in := &routerProto.CreateOrUpdateRouteRequest{
 			SessionID:   s.ID,
-			MemberID:    s.member.ID,
+			MemberID:    s.claim.AccountID,
 			GatewayAddr: s.manager.gatewayAddr,
 		}
 		_, err := s.routerClient.CreateOrUpdateRoute(context.Background(), in)
@@ -288,9 +288,9 @@ func (s *WSSession) StartTasks() {
 			in := &dispatcherProto.DispatcherCommandRequest{
 				OP:   commandReq.OP,
 				Data: commandReq.Data,
-				SenderID: s.member.ID,
-				SenderFirstName: s.member.Firstname,
-				SenderLastName: s.member.Lastname,
+				SenderID: s.claim.AccountID,
+				SenderFirstName: s.claim.Firstname,
+				SenderLastName: s.claim.Lastname,
 			}
 
 			if len(s.roomID) > 0 {
@@ -300,7 +300,7 @@ func (s *WSSession) StartTasks() {
 
 			md := metadata.Pairs(
 				"req_id", uuid.NewV4().String(),
-				"sender_id", s.member.ID,
+				"sender_id", s.claim.AccountID,
 			)
 			ctx := metadata.NewOutgoingContext(context.Background(), md)
 
@@ -320,15 +320,12 @@ func (s *WSSession) StartTasks() {
 			}
 		}
 
-		if commandResp != nil {
-			// buf, err = json.Marshal(*commandResp)
-			// if err != nil {
-			// 	continue
-			// }
-
-			// message = &WSMessage{websocket.TextMessage, buf}
-			// s.SendMessage(message)
-			s.SendCommand(commandResp)
+		if commandResp == nil {
+			continue
 		}
+
+		s.SendCommand(commandResp)
+
+		
 	}
 }

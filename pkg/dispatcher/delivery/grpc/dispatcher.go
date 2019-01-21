@@ -30,6 +30,8 @@ func (svc *DispatcherServer) HandleCommand(ctx context.Context, in *deliveryProt
 	switch in.OP {
 	case "MSGRM":
 		return svc.handleMSGRM(ctx, in)
+	case "LOGIN":
+		return svc.handleTOKEN(ctx, in)
 	default:
 		log.Warnf("dispatcher: unknown command: %s", in.OP)
 		reply := &deliveryProto.DispatcherCommandReply{}

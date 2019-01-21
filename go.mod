@@ -7,6 +7,7 @@ require (
 	github.com/cenk/backoff v2.0.0+incompatible
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/derekparker/delve v1.1.0
 	github.com/go-redis/redis v6.14.2+incompatible
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/gogo/protobuf v1.1.1
@@ -18,6 +19,7 @@ require (
 	github.com/jasonsoft/cockroach-go v0.0.0-20180418140703-1f549862d97b
 	github.com/jasonsoft/log v0.0.0-20180808044215-1daf6a8586a8
 	github.com/jasonsoft/napnap v0.0.0-20180808044343-cdceab4d8da2
+	github.com/jasonsoft/request v0.0.0-20180407020346-5cf5559865f9
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
 	github.com/json-iterator/go v1.1.5
 	github.com/lib/pq v1.0.0
