@@ -2,30 +2,29 @@ package identity
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 )
 
 type Account struct {
-	ID                    string          `json:"id,omitempty" db:"id"`
-	App                   string          `json:"app,omitempty" db:"app"`
-	Username              string          `json:"username,omitempty" db:"username"`
-	PasswordHash          string          `json:"-" db:"password_hash"`
-	FirstName             string          `json:"first_name" db:"first_name"`
-	LastName              string          `json:"last_name" db:"last_name"`
-	Avatar                string          `json:"avatar,omitempty" db:"avatar"`
-	Email                 string          `json:"email,omitempty" db:"email"`
-	Mobile                string          `json:"mobile,omitempty" db:"mobile"`
-	ExternalID            string          `json:"external_id,omitempty" db:"external_id"`
-	IsLockedOut           bool            `json:"is_locked_out,omitempty" db:"is_locked_out"`
-	FailedPasswordAttempt int             `json:"failed_password_attempt_count,omitempty" db:"failed_password_attempt_count"`
-	Roles                 []string        `json:"roles,omitempty"`
-	ClientIP              string          `json:"client_ip,omitempty" db:"client_ip"`
-	UserAgent             string          `json:"user_agent,omitempty" db:"user_agent"`	
-	Extension             json.RawMessage `json:"extension,omitempty" db:"extension"`
-	LastLoginAt           *time.Time      `json:"last_login_at,omitempty" db:"last_login_at"`
-	CreatedAt             *time.Time      `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt             *time.Time      `json:"updated_at,omitempty" db:"updated_at"`
+	ID                    string     `json:"id,omitempty" db:"id"`
+	App                   string     `json:"app,omitempty" db:"app"`
+	Username              string     `json:"username,omitempty" db:"username"`
+	PasswordHash          string     `json:"-" db:"password_hash"`
+	FirstName             string     `json:"first_name" db:"first_name"`
+	LastName              string     `json:"last_name" db:"last_name"`
+	Avatar                string     `json:"avatar,omitempty" db:"avatar"`
+	Email                 string     `json:"email,omitempty" db:"email"`
+	Mobile                string     `json:"mobile,omitempty" db:"mobile"`
+	ExternalID            string     `json:"external_id,omitempty" db:"external_id"`
+	IsLockedOut           bool       `json:"is_locked_out,omitempty" db:"is_locked_out"`
+	FailedPasswordAttempt int        `json:"failed_password_attempt_count,omitempty" db:"failed_password_attempt_count"`
+	Roles                 []string   `json:"roles,omitempty"`
+	ClientIP              string     `json:"client_ip,omitempty" db:"client_ip"`
+	UserAgent             string     `json:"user_agent,omitempty" db:"user_agent"`
+	Extension             string     `json:"extension,omitempty" db:"extension"`
+	LastLoginAt           *time.Time `json:"last_login_at,omitempty" db:"last_login_at"`
+	CreatedAt             *time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt             *time.Time `json:"updated_at,omitempty" db:"updated_at"`
 }
 
 type FindAccountOptions struct {
@@ -47,13 +46,6 @@ type FindAccountOptions struct {
 	LoginTimeEnd     *time.Time `db:"login_end_time"`
 }
 
-type LoginInfo struct {
-	GrantType string `json:"grant_type"`
-	App       string `json:"app"`
-	UserName  string `json:"username"`
-	Password  string `json:"password"`
-}
-
 type AccountServicer interface {
 	Account(ctx context.Context, accountID string) (*Account, error)
 	Accounts(ctx context.Context, opt *FindAccountOptions) ([]*Account, error)
@@ -62,7 +54,4 @@ type AccountServicer interface {
 	UpdateAccountPassword(ctx context.Context, accountID string, newPassword string) error
 	LockAccount(ctx context.Context, app, accountID string) error
 	UnlockAccount(ctx context.Context, app, accountID string) error
-	Token(ctx context.Context, app, accessToken string) (*Token, error)
-	DeleteToken(ctx context.Context, app, accessToken string) error
-	CreateToken(ctx context.Context, login *LoginInfo) (*Token, error, int)
 }

@@ -3,13 +3,12 @@ package http
 import (
 	"net/http"
 
-	"github.com/jasonsoft/wakanda/internal/identity"
-
 	"github.com/gorilla/websocket"
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
+	"github.com/jasonsoft/wakanda/pkg/identity"
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
 	"github.com/satori/go.uuid"
 )
@@ -52,17 +51,10 @@ func (h *GatewayHttpHandler) wsEndpoint(c *napnap.Context) {
 		log.Debug("gateway: ws socket endpoint end")
 	}()
 
-	claim, found := identity.FromContext(ctx)
+	claims, found := identity.FromContext(ctx)
 	if found == false {
 		c.SetStatus(403)
 		return
-	}
-
-	member := &identity.Member{
-		ID:        claim.UserID,
-		Username:  claim.Username,
-		Firstname: claim.Firstname,
-		Lastname:  claim.Lastname,
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -71,7 +63,7 @@ func (h *GatewayHttpHandler) wsEndpoint(c *napnap.Context) {
 	}
 
 	sessionID := uuid.NewV4().String()
-	wsSession := gateway.NewWSSession(sessionID, member, conn, h.manager, h.dispatcherClient, h.routerClient, "")
+	wsSession := gateway.NewWSSession(sessionID, *claims, conn, h.manager, h.dispatcherClient, h.routerClient, "")
 	wsSession.StartTasks()
 }
 
@@ -87,17 +79,10 @@ func (h *GatewayHttpHandler) roomEndpoint(c *napnap.Context) {
 		log.Debug("gateway: ws socket endpoint end")
 	}()
 
-	claim, found := identity.FromContext(ctx)
+	claims, found := identity.FromContext(ctx)
 	if found == false {
 		c.SetStatus(403)
 		return
-	}
-
-	member := &identity.Member{
-		ID:        claim.UserID,
-		Username:  claim.Username,
-		Firstname: claim.Firstname,
-		Lastname:  claim.Lastname,
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -106,7 +91,7 @@ func (h *GatewayHttpHandler) roomEndpoint(c *napnap.Context) {
 	}
 
 	sessionID := uuid.NewV4().String()
-	wsSession := gateway.NewWSSession(sessionID, member, conn, h.manager, h.dispatcherClient, h.routerClient, roomID)
+	wsSession := gateway.NewWSSession(sessionID, *claims, conn, h.manager, h.dispatcherClient, h.routerClient, roomID)
 
 	h.manager.JoinRoom(roomID, wsSession)
 	wsSession.StartTasks()

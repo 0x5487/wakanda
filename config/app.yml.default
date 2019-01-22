@@ -33,5 +33,5 @@ router:
   advertise_addr: "localhost:18746"
   grpc_bind: ":18746"
 identity:
-  advertise_addr: "localhost:17486"
+  advertise_addr: "http://localhost:17486"
   http_bind: ":17486"

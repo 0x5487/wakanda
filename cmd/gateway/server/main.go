@@ -66,7 +66,7 @@ func main() {
 	}()
 
 	// start http service
-	nap := napWithMiddlewares()
+	nap := napWithMiddlewares(config)
 	httpEngine := napnap.NewHttpEngine(config.Gateway.HTTPBind)
 	go func() {
 		log.Info("gateway: gateway service started")

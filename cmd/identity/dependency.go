@@ -1,36 +1,28 @@
 package main
 
 import (
-	"os"
-
-	"github.com/jasonsoft/napnap"
-
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/log/handlers/console"
 	"github.com/jasonsoft/log/handlers/gelf"
+	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/internal/config"
 	"github.com/jasonsoft/wakanda/internal/middleware"
 	dispatcherGRPC "github.com/jasonsoft/wakanda/pkg/dispatcher/delivery/grpc"
-	dispatcherNats "github.com/jasonsoft/wakanda/pkg/dispatcher/delivery/nats"
+	"github.com/jasonsoft/wakanda/pkg/identity"
 	identityHttp "github.com/jasonsoft/wakanda/pkg/identity/delivery/http"
-	"github.com/nats-io/go-nats-streaming"
+	identitySvc "github.com/jasonsoft/wakanda/pkg/identity/service"
 )
 
 var (
 	// grpc servers
 	_dispatcherServer *dispatcherGRPC.DispatcherServer
+	_accountSvc       identity.AccountServicer
 )
 
 func initialize(config *config.Configuration) error {
-	initLogger("dispatcher", config)
+	initLogger("identity", config)
 
-	natsConn, err := setupNatsConn(config)
-	if err != nil {
-		return err
-	}
-
-	dispatcherPub := dispatcherNats.NewDispatcherPub(natsConn)
-	_dispatcherServer = dispatcherGRPC.NewDispatcherServer(dispatcherPub)
+	_accountSvc = identitySvc.NewAccountService()
 
 	return nil
 }
@@ -52,16 +44,6 @@ func initLogger(appID string, config *config.Configuration) {
 	}
 }
 
-func setupNatsConn(config *config.Configuration) (stan.Conn, error) {
-	hostname, _ := os.Hostname()
-	clientID := "dispatcher-" + hostname
-	natsConn, err := stan.Connect(config.Nats.ClusterID, clientID, stan.NatsURL("nats://"+config.Nats.Address))
-	if err != nil {
-		return nil, err
-	}
-	return natsConn, nil
-}
-
 func napWithMiddlewares(config *config.Configuration) *napnap.NapNap {
 	nap := napnap.New()
 	corsOpts := napnap.Options{
@@ -72,6 +54,8 @@ func napWithMiddlewares(config *config.Configuration) *napnap.NapNap {
 	nap.Use(napnap.NewCors(corsOpts))
 	nap.Use(napnap.NewHealth())
 	nap.Use(middleware.NewErrorHandingMiddleware())
-	nap.Use(identityHttp.NewAuthMiddleware(config))
+	httpHandler := identityHttp.NewIdentityHttpHandler(_accountSvc)
+	router := identityHttp.NewIdentityRouter(httpHandler)
+	nap.Use(router)
 	return nap
 }

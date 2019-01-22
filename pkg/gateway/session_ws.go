@@ -45,7 +45,7 @@ type WSSession struct {
 	routerClient     routerProto.RouterServiceClient
 
 	ID          string
-	claim      *identity.Claim
+	claims      identity.Claims
 	socket      *websocket.Conn
 	rooms       sync.Map
 	roomID      string // member play chatroom and use the roomID
@@ -54,7 +54,7 @@ type WSSession struct {
 	commandChan chan *Command
 }
 
-func NewWSSession(id string, claim *identity.Claim, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient, roomID string) *WSSession {
+func NewWSSession(id string, claims identity.Claims, conn *websocket.Conn, manager *Manager, dispatcherClient dispatcherProto.DispatcherServiceClient, routerClient routerProto.RouterServiceClient, roomID string) *WSSession {
 	return &WSSession{
 		mutex: sync.Mutex{},
 		manager:          manager,
@@ -62,7 +62,7 @@ func NewWSSession(id string, claim *identity.Claim, conn *websocket.Conn, manage
 		routerClient:     routerClient,
 		isActive: true,
 		ID:               id,
-		claim:          claim,
+		claims:          claims,
 		socket:           conn,
 		inChan:           make(chan *WSMessage, 1024),
 		outChan:          make(chan *WSMessage, 1024),
@@ -212,7 +212,7 @@ func (s *WSSession) refreshRouter() {
 	for range timer.C {
 		in := &routerProto.CreateOrUpdateRouteRequest{
 			SessionID:   s.ID,
-			MemberID:    s.claim.AccountID,
+			MemberID:    s.claims["account_id"].(string),
 			GatewayAddr: s.manager.gatewayAddr,
 		}
 		_, err := s.routerClient.CreateOrUpdateRoute(context.Background(), in)
@@ -288,9 +288,9 @@ func (s *WSSession) StartTasks() {
 			in := &dispatcherProto.DispatcherCommandRequest{
 				OP:   commandReq.OP,
 				Data: commandReq.Data,
-				SenderID: s.claim.AccountID,
-				SenderFirstName: s.claim.Firstname,
-				SenderLastName: s.claim.Lastname,
+				SenderID: s.claims["account_id"].(string),
+				SenderFirstName: s.claims["first_name"].(string),
+				SenderLastName: s.claims["last_name"].(string),
 			}
 
 			if len(s.roomID) > 0 {
@@ -300,7 +300,7 @@ func (s *WSSession) StartTasks() {
 
 			md := metadata.Pairs(
 				"req_id", uuid.NewV4().String(),
-				"sender_id", s.claim.AccountID,
+				"sender_id", s.claims["account_id"].(string),
 			)
 			ctx := metadata.NewOutgoingContext(context.Background(), md)
 

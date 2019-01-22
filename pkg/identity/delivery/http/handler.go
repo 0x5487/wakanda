@@ -1,13 +1,15 @@
 package http
 
 import (
+	"time"
+
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/pkg/identity"
 )
 
 func NewIdentityRouter(h *IdentityHttpHandler) *napnap.Router {
 	router := napnap.NewRouter()
-	router.Get("/tokens/:token_id", h.tokenGetEndpoint)
+	router.Get("/v1/tokens/:token_id", h.tokenGetEndpoint)
 	return router
 }
 
@@ -48,13 +50,18 @@ func (h *IdentityHttpHandler) tokenGetEndpoint(c *napnap.Context) {
 	// 	c.SetStdContext(ctx)
 	// }
 
-	account := identity.Account{
-		ID:        "aa58c0a6-32e3-4621-bb43-f45754f9f3dd",
-		Username:  "jason",
-		FirstName: "Jason",
-		LastName:  "Lee",
+	claims := identity.Claims{
+		"account_id": "aa58c0a6-32e3-4621-bb43-f45754f9f3dd",
+		"first_name": "Jason",
+		"last_name":  "Lee",
 	}
 
-	c.JSON(200, account)
+	token := identity.Token{
+		AccessToken: "aa58c0a6-32e3-4621-bb43-f45754f9f3dd",
+		ExpiresIn:   time.Now().Unix(),
+		Claims:      claims,
+	}
+
+	c.JSON(200, &token)
 
 }

@@ -12,7 +12,7 @@ import (
 	dispatcherProto "github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
 	gatewayHttp "github.com/jasonsoft/wakanda/pkg/gateway/delivery/http"
-	"github.com/jasonsoft/wakanda/pkg/identity"
+	identityHttp "github.com/jasonsoft/wakanda/pkg/identity/delivery/http"
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
 	"google.golang.org/grpc"
 )
@@ -73,7 +73,7 @@ func initLogger(appID string, config *config.Configuration) {
 	}
 }
 
-func napWithMiddlewares() *napnap.NapNap {
+func napWithMiddlewares(config *config.Configuration) *napnap.NapNap {
 	nap := napnap.New()
 	corsOpts := napnap.Options{
 		AllowedOrigins: []string{"*"},
@@ -83,7 +83,7 @@ func napWithMiddlewares() *napnap.NapNap {
 	nap.Use(napnap.NewCors(corsOpts))
 	nap.Use(napnap.NewHealth())
 	nap.Use(middleware.NewErrorHandingMiddleware())
-	nap.Use(identity.NewAuthMiddleware())
+	nap.Use(identityHttp.NewAuthMiddleware(config))
 	nap.Use(gatewayHttp.NewPrometheusMiddleware(_manager))
 	httpHandler := gatewayHttp.NewGatewayHttpHandler(_manager, _dispatcherClient, _routerClient)
 	nap.Use(gatewayHttp.NewGatewayRouter(httpHandler))

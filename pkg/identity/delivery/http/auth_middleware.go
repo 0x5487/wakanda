@@ -61,7 +61,7 @@ func (m *AuthMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 	resp.JSON(&t)
 
 	stdctx := c.StdContext()
-	ctx := identity.NewContext(stdctx, &t.Claim)
+	ctx := identity.NewContext(stdctx, &t.Claims)
 	c.SetStdContext(ctx)
 
 	next(c)

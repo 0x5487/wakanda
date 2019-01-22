@@ -4,28 +4,27 @@ import (
 	"context"
 )
 
+type Claims map[string]interface{}
+
 type Token struct {
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int64  `json:"expires_in"`
-	Claim       Claim  `json:"claim,omitempty" db:"claim"`
+	Claims      Claims `json:"claims,omitempty"`
 }
 
-type Claim struct {
-	AccountID  string   `json:"account_id"`
-	Username   string   `json:"username"`
-	Firstname  string   `json:"first_name"`
-	Lastname   string   `json:"last_name"`
-	ConsumerID string   `json:"consumer_id"`
-	Roles      []string `json:"roles"`
-	Modules    []string `json:"modules"`
+type LoginInfo struct {
+	GrantType string `json:"grant_type"`
+	App       string `json:"app"`
+	UserName  string `json:"username"`
+	Password  string `json:"password"`
 }
 
-func NewContext(ctx context.Context, claim *Claim) context.Context {
-	return context.WithValue(ctx, "identity_userkey", claim)
+func NewContext(ctx context.Context, claim *Claims) context.Context {
+	return context.WithValue(ctx, "identity_claims", claim)
 }
 
-func FromContext(ctx context.Context) (*Claim, bool) {
-	val, ok := ctx.Value("identity_userkey").(*Claim)
+func FromContext(ctx context.Context) (*Claims, bool) {
+	val, ok := ctx.Value("identity_claims").(*Claims)
 	if !ok {
 		return nil, false
 	}
