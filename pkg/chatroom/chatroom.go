@@ -13,4 +13,5 @@ type Room struct {
 }
 
 type ChatroomServicer interface {
+	JoinRoom(app, roomID string) error
 }

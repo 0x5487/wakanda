@@ -7,6 +7,7 @@ import (
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/napnap"
 	"github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
+	dispatcherProto "github.com/jasonsoft/wakanda/pkg/dispatcher/proto"
 	"github.com/jasonsoft/wakanda/pkg/gateway"
 	"github.com/jasonsoft/wakanda/pkg/identity"
 	routerProto "github.com/jasonsoft/wakanda/pkg/router/proto"
@@ -83,6 +84,21 @@ func (h *GatewayHttpHandler) roomEndpoint(c *napnap.Context) {
 	if found == false {
 		c.SetStatus(403)
 		return
+	}
+
+	// ensure the member can join the room
+	in := &dispatcherProto.DispatcherCommandRequest{
+		OP:              "JOINROOM",
+		Data:            []byte(roomID),
+		SenderID:        claims["account_id"].(string),
+		SenderFirstName: claims["first_name"].(string),
+		SenderLastName:  claims["last_name"].(string),
+	}
+
+	handleCommandReply, err := h.dispatcherClient.HandleCommand(ctx, in)
+	if err != nil {
+		log.Errorf("gateway: command error from dispatcher server: %v", err)
+		panic(err)
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)

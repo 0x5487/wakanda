@@ -19,12 +19,12 @@ type LoginInfo struct {
 	Password  string `json:"password"`
 }
 
-func NewContext(ctx context.Context, claim *Claims) context.Context {
+func NewContext(ctx context.Context, claim Claims) context.Context {
 	return context.WithValue(ctx, "identity_claims", claim)
 }
 
-func FromContext(ctx context.Context) (*Claims, bool) {
-	val, ok := ctx.Value("identity_claims").(*Claims)
+func FromContext(ctx context.Context) (Claims, bool) {
+	val, ok := ctx.Value("identity_claims").(Claims)
 	if !ok {
 		return nil, false
 	}

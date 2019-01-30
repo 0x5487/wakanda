@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package proto;
 
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 message CommandRequest {
   string OP = 1;
@@ -21,10 +22,13 @@ message GetServerTimeReply {
 
 message Message {
   string ID = 1;
-  int32 SeqID = 2;
+  int32 SeqID = 2 [(gogoproto.jsontag) = "seq_id", (gogoproto.moretags) = "db:\"seq_id\""];
   int32 Type = 3;
   string GroupID = 4;
   string Content = 5;      
+}
+
+message Empty {
 }
 
 
